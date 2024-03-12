@@ -10,7 +10,17 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import java.util.StringTokenizer;
 import org.htmlparser.beans.LinkBean;
+
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
+import org.htmlparser.Parser;
+import org.htmlparser.filters.NodeClassFilter;
+import org.htmlparser.tags.TitleTag;
+import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 
 
 public class Spider {
@@ -23,8 +33,6 @@ public class Spider {
 
     public Vector<String> extractWords() throws ParserException
     {
-        // extract words in url and return them
-        // use StringTokenizer to tokenize the result from StringBean
         StringBean sb;
         sb = new StringBean ();
         sb.setURL (url);
@@ -37,9 +45,9 @@ public class Spider {
         return v;
     }
 
+
     public Vector<String> extractLinks() throws ParserException
     {
-        // extract links in url and return them
         Vector<String> v_link = new Vector<String>();
         LinkBean lb = new LinkBean();
         lb.setURL(url);
@@ -48,5 +56,55 @@ public class Spider {
             v_link.add(URL_array[i].toString());
         }
         return v_link;
+    }
+
+
+    public String extractTitle() throws ParserException {
+        try {
+            Parser parser = new Parser(url);
+            NodeClassFilter filter = new NodeClassFilter(TitleTag.class);
+            NodeList list = parser.extractAllNodesThatMatch(filter);
+            if (list.size() > 0) {
+                TitleTag titleTag = (TitleTag) list.elementAt(0);
+                return titleTag.getStringText();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    
+    public String getLastModifiedDate() {
+        try {
+            URL pageUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) pageUrl.openConnection();
+            long lastModifiedTimestamp = connection.getLastModified();
+            if (lastModifiedTimestamp != 0) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                return sdf.format(new Date(lastModifiedTimestamp));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // need to implement the code to get the last modified date if it is not provided in the header
+        return null;
+    }
+
+
+    public long getPageSize() {
+        try {
+            URL pageUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) pageUrl.openConnection();
+            long pageSize = connection.getContentLength();
+            if (pageSize != -1){
+                return pageSize;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // need to implement the code to get the page size if it is not provided in the header
+        return -1;
     }
 }
