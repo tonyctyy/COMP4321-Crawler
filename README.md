@@ -41,7 +41,7 @@ javac -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram.java"
 After compiling the Java files, execute the TestProgram to initiate the web crawling and indexing process using the following command:
 
 ```shell
-java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." TestProgram
+java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 ```
 
 ## Bugs
