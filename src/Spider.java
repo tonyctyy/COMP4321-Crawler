@@ -10,33 +10,25 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import java.util.StringTokenizer;
 import org.htmlparser.beans.LinkBean;
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
-import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.TitleTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
-
 
 public class Spider {
     private String url;
 
-	public Spider(String _url)
-	{
-		url = _url;
-	}
+    // Constructor to initialize Spider with a URL
+    public Spider(String _url) {
+        url = _url;
+    }
 
-    public Vector<String> extractWords() throws ParserException
-    {
-        StringBean sb;
-        sb = new StringBean ();
-        sb.setURL (url);
-        String content = sb.getStrings ();
+    // Extracts words from the webpage content
+    public Vector<String> extractWords() throws ParserException {
+        StringBean sb = new StringBean();
+        sb.setURL(url);
+        String content = sb.getStrings();
         StringTokenizer st = new StringTokenizer(content);
         Vector<String> v = new Vector<String>();
         while(st.hasMoreTokens()){
@@ -45,20 +37,19 @@ public class Spider {
         return v;
     }
 
-
-    public Vector<String> extractLinks() throws ParserException
-    {
+    // Extracts links from the webpage
+    public Vector<String> extractLinks() throws ParserException {
         Vector<String> v_link = new Vector<String>();
         LinkBean lb = new LinkBean();
         lb.setURL(url);
         URL[] URL_array = lb.getLinks();
-        for(int i=0; i<URL_array.length; i++){
+        for(int i = 0; i < URL_array.length; i++){
             v_link.add(URL_array[i].toString());
         }
         return v_link;
     }
 
-
+    // Extracts the title of the webpage
     public String extractTitle() throws ParserException {
         try {
             Parser parser = new Parser(url);
@@ -74,7 +65,7 @@ public class Spider {
         return null;
     }
 
-    
+    // Retrieves the last modified date of the webpage
     public String getLastModifiedDate() {
         try {
             URL pageUrl = new URL(url);
@@ -91,7 +82,7 @@ public class Spider {
         return null;
     }
 
-
+    // Retrieves the size of the webpage
     public long getPageSize() {
         try {
             URL pageUrl = new URL(url);
@@ -100,7 +91,6 @@ public class Spider {
             if (pageSize != -1){
                 return pageSize;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
