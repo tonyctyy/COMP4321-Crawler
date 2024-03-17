@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\admin\\Desktop\\UST\\23-24_Spring\\COMP4321\\lab2\\htmlparser.jar",
+        "c:\\Users\\admin\\Desktop\\UST\\23-24_Spring\\COMP4321\\lab1\\jdbm-1.0.jar"
+    ]
+}
