@@ -87,90 +87,90 @@ relev 6, term 6, mathemat 5, system 5, mean 3,
 Dinosaur Planet (2003)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/1.html
 16/05/2023, 3605
- 32, dinosaur 27, search 15, titl 14, planet 11, 
+dinosaur 27, search 15, titl 14, planet 11, movi 8, 
 --------------------------------------------------
 Isle of Man TT 2004 Review (2004)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/2.html
 16/05/2023, 2868
- 30, search 15, review 11, titl 10, 2004 10, 
+search 15, review 11, titl 10, 2004 10, movi 7, 
 --------------------------------------------------
 Character (1997)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/3.html
 16/05/2023, 4008
-charact 42,  32, search 15, titl 13, movi 7, 
+charact 42, search 15, titl 13, movi 7, aka 6, 
 --------------------------------------------------
 Paula Abdul's Get Up and Dance (1994)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/4.html
 16/05/2023, 2820
- 35, search 15, titl 11, danc 11, abdul 9, 
+search 15, titl 11, danc 11, abdul 9,  8, 
 --------------------------------------------------
 The Rise and Fall of ECW (2004)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/5.html
 16/05/2023, 3928
- 31, fall 28, rise 28, search 15, titl 12, 
+fall 28, rise 28, search 15, titl 12, movi 8, 
 --------------------------------------------------
 Sick (1997)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/6.html
 16/05/2023, 5243
-sick 70,  41, titl 16, search 15, aka 14, 
+sick 70, titl 16, search 15, aka 14, v 9, 
 --------------------------------------------------
 8 Man (1992)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/7.html
 16/05/2023, 3498
- 36, search 15, 8 14, titl 12, movi 7, 
+search 15, 8 14, titl 12, movi 7, aka 7, 
 --------------------------------------------------
 What the #$*! Do We Know!? (2004)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/8.html
 16/05/2023, 4147
- 42, titl 16, search 15, know 10, aka 8, 
+titl 16, search 15,  10, know 10, aka 8, 
 --------------------------------------------------
 Class of Nuke 'Em High 2 (1991)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/9.html
 16/05/2023, 7075
- 58, imdb 11, movi 10, user 10, em 9, 
+ 29, imdb 11, movi 10, user 10, em 9, 
 --------------------------------------------------
 Fighter (2001)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/10.html
 16/05/2023, 13199
-fighter 220, aka 91,  89, titl 59, street 56, 
+fighter 220, aka 91, titl 59, street 56, vg 40, 
 --------------------------------------------------
 Full Frame: Documentary Shorts (1999)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/11.html
 16/05/2023, 2700
- 29, search 15, titl 10, short 9, movi 7, 
+search 15, titl 10, short 9, movi 7, documentari 7, 
 --------------------------------------------------
 My Favorite Brunette (1947)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/12.html
 16/05/2023, 6432
- 53, movi 13, imdb 11, rate 10, user 10, 
+ 26, movi 13, imdb 11, rate 10, user 10, 
 --------------------------------------------------
 Lord of the Rings: The Return of the King: Extended Edition: Bonus Material (2003)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/13.html
 16/05/2023, 2997
- 29, search 15, return 9, titl 9, movi 8, 
+search 15, return 9, titl 9, movi 8, ring 8, 
 --------------------------------------------------
 Nature: Antarctica (1982)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/14.html
 16/05/2023, 3711
- 36, antarctica 21, search 15, titl 14, aka 8, 
+antarctica 21, search 15, titl 14, aka 8, natur 8, 
 --------------------------------------------------
 Neil Diamond: Greatest Hits Live (1988)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/15.html
 16/05/2023, 5415
- 39, imdb 11, user 10, movi 8, rate 8, 
+ 11, imdb 11, user 10, movi 8, rate 8, 
 --------------------------------------------------
 Screamers (1996)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/16.html
 16/05/2023, 3737
- 40, screamer 18, titl 16, search 15, aka 12, 
+screamer 18, titl 16, search 15, aka 12, movi 8, 
 --------------------------------------------------
 7 Seconds (2005)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/17.html
 16/05/2023, 3521
- 34, search 15, second 13, titl 12, movi 7, 
+search 15, second 13, titl 12, movi 7, 7 7, 
 --------------------------------------------------
 Immortal Beloved (1994)
 https://www.cse.ust.hk/~kwtleung/COMP4321/Movie/18.html
 16/05/2023, 7583
- 56, movi 12, imdb 11, user 10, belov 8, 
+ 29, movi 12, imdb 11, user 10, belov 8, 
 --------------------------------------------------

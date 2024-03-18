@@ -32,9 +32,14 @@ javac -cp "../lib/jdbm-1.0.jar;." "Indexer.java"
 javac -cp "../lib/htmlparser.jar;." "Spider.java"
 ```
 
+#### CrawlandIndex:
+```shell
+javac -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "CrawlandIndex.java"
+```
+
 #### TestProgram:
 ```shell
-javac -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram.java"
+javac "TestProgram.java"
 ```
 
 ### Executing the Program
@@ -45,7 +50,8 @@ java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 ```
 
 ## Bugs
-- WordID 33 is not found in the database. (No word is stored, i.e. " ")
+#1 WordID 33 is not found in the database. (No word is stored, i.e. " ") (Solved, need to add more special characters to the stopword.txt (e.g. |))
+
 
 ## Discussion
 - How to store the words of the title in each page?
