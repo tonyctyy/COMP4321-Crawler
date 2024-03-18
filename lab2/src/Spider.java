@@ -238,7 +238,7 @@ public class Spider
 	private HashMap<String, Integer> getProcessedWords(Vector<String> words) 
 	{
 		//stopword removal and stemming
-		StopStem stopStem = new StopStem("../stopwords.txt");
+		StopStem stopStem = new StopStem("stopwords.txt");
 		HashMap<String, Integer> wordFrequency = new HashMap<>();
 		for(int i = 0; i < words.size(); i++)
 		{
@@ -325,7 +325,7 @@ public class Spider
 	{
 		try
 		{
-			Spider spider = new Spider("http://www.cs.ust.hk/~dlee/4321/", 2, 30, 10);
+			Spider spider = new Spider("https://www.cse.ust.hk/~kwtleung/COMP4321/testpage.htm", 10, 30, 10);
 
 			spider.recursiveExtractLinks();
 		}
