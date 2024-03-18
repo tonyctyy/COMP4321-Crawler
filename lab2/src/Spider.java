@@ -118,7 +118,7 @@ public class Spider
 		queue.add(_url);
 		visitedLinks.add(_url);
 
-		while (!queue.isEmpty() && currentDepth <= maxDepth && visitedLinks.size() < fetchSize) {
+		while (!queue.isEmpty() && currentDepth <= maxDepth) {
 			int size = queue.size();
 
 			for (int i = 0; i < size; i++) {
@@ -129,7 +129,7 @@ public class Spider
 				//System.out.println("=======================================================");
 				printContent(currentUrl);
 
-				Vector<String> words = extractWords(_url);
+				Vector<String> words = extractWords(currentUrl);
 				printWordFrequency(sortWordFrequency(getProcessedWords(words)));
 
 				Vector<String> childLinks = extractLinks(currentUrl);
