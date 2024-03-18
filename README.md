@@ -50,7 +50,7 @@ java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 ```
 
 ## Bugs
-#1 WordID 33 is not found in the database. (No word is stored, i.e. " ") (Solved, need to add more special characters to the stopword.txt (e.g. |))
+#1 WordID 33 is not found in the database. (No word is stored, i.e. " ") (Solved, need to add more special characters to the stopword.txt (e.g. | ))
 
 
 ## Discussion
@@ -64,4 +64,3 @@ java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 - Indexer
   - Implement logic to check if the existing table is not empty, then update the table instead of creating a new one. (Consider comparing last modified dates if the page is found in the database.)
   - Add code to extract the last modified date and page size if not provided in the header.
-```
