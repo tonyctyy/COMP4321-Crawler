@@ -10,9 +10,13 @@ This repository contains code for a web crawler and indexing system developed as
 - [Bugs](#bugs)
 - [Discussion](#discussion)
 - [To-Do](#to-do)
-- [Q&As](#q&as)
+- [Q&As](#qas)
 
 ## Instructions
+
+### Prerequisites
+- OpenJDK version: 21.0.2
+
 
 ### Building the Project
 
