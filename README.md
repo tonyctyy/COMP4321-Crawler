@@ -1,6 +1,10 @@
 # COMP4321-Crawler
 
-This repository contains code for a web crawler and indexing system developed as part of the COMP4321 course project.
+This repository contains code for a web crawler and indexing system developed as part of the COMP4321 course project. There are 4 main folders in the project:
+1. data: Contains the database files used to store the crawled data.
+2. lib: Contains the external libraries used in the project.
+3. src: Contains the source code for the project.
+4. docs: Contains the project documentation. (You can find the "spider.result.txt" and "Database Design.pdf" here.)
 
 ## Table of Contents
 
@@ -20,7 +24,7 @@ This repository contains code for a web crawler and indexing system developed as
 
 ### Building the Project
 
-To compile each Java file in Windows, follow the commands below:
+To compile each Java file in Windows, follow the commands below (Please make sure you are in the src directory):
 
 #### StopStem:
 ```shell
