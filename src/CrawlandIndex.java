@@ -147,7 +147,7 @@ public class CrawlandIndex {
 
     // Method to output indexed pages and related information to a file
     public static void outputFile() {
-        String outputFilePath = "../docs/output.txt"; 
+        String outputFilePath = "../docs/spider_result.txt"; 
         try {
             Indexer PageInfoIndexer = new Indexer("PageInfo", "PageInfo");
             Indexer PageURlMapping = new Indexer("PageURlMapping", "PageURlMapping");
