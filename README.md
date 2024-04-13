@@ -8,12 +8,18 @@ This repository contains code for a web crawler and indexing system developed as
 
 ## Table of Contents
 
-- [Instructions](#instructions)
-  - [Building the Project](#building-the-project)
-  - [Executing the Program](#executing-the-program)
-- [Bugs](#bugs)
-- [Discussion](#discussion)
-- [To-Do](#to-do)
+- [COMP4321-Crawler](#comp4321-crawler)
+  - [Table of Contents](#table-of-contents)
+  - [Instructions](#instructions)
+    - [Building the Project](#building-the-project)
+      - [StopStem:](#stopstem)
+      - [Indexer:](#indexer)
+      - [Spider:](#spider)
+      - [CrawlandIndex:](#crawlandindex)
+      - [TestProgram:](#testprogram)
+    - [Executing the Program](#executing-the-program)
+  - [Bugs](#bugs)
+  - [Discussion](#discussion)
 
 ## Instructions
 
@@ -58,13 +64,13 @@ java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 
 
 ## Discussion
-- How to store the words of the title in each page?
+- How to handle unindexed child pages?
+  - Currently, we can't get the child pages id if the child page is not indexed. Then, how can we store the child pages id in the parent page? 
+
+- How to calculate the weighting of query?
+
+- How to store the words of the title in each page? (Solved)
   - Currently, the project extracts words from the body content of each page using the Spider class. We may consider enhancing this process to specifically extract words from the title tag of HTML pages.
 
-- How to manage multiple databases?
+- How to manage multiple databases? (Solved)
     - Currently, different RecordManager instances are used during execution, and all database files are stored in the same directory. Alternatively, we can use a single RecordManager and store all tables in the same database file. This approach needs further discussion.
-
-## To-Do
-- Indexer
-  - Implement logic to check if the existing table is not empty, then update the table instead of creating a new one. (Consider comparing last modified dates if the page is found in the database.)
-  - Add code to extract the last modified date and page size if not provided in the header.
