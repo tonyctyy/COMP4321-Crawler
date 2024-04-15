@@ -107,52 +107,46 @@ public class CrawlandIndex {
                         String dbLastModificationDate = null;
                         if (indexer.containsKey(PageInfoIndexer, String.valueOf(PageID)))
                             dbLastModificationDate = indexer.getValues(PageInfoIndexer, String.valueOf(PageID))[2];
-                        
-                        // if (dbLastModificationDate != null && dbLastModificationDate.compareTo(lastModificationDate) >= 0) {
-                        //     System.out.println("Page already indexed, skipping: " + url);
-                        //     continue;
-                        // }
+                    
+                        List<String> links = spider.extractLinks();
+                        List<String> child = new ArrayList<>();
+                        for (String link : links) {
+                            if (!visited.contains(link)) {
+                                child.add(link);
+                            }
+                            if (!visited.contains(link) && !queue.contains(link)) {
+                                queue.add(link);
+                            }
+                        }
+
+                        if (dbLastModificationDate != null && dbLastModificationDate.compareTo(lastModificationDate) >= 0) {
+                            System.out.println("Page already indexed, skipping: " + url);
+                            continue;
+                        }
 
                         String title = spider.extractTitle();
 
                         Long pageSize = spider.getPageSize();
                         
                         List<String> words = spider.extractWords();
-                        // Calculate word frequency
-                        HashMap<String, Integer> wordFreq = WordFreq(words, stopStem);
 
                         List<String> two_gram = extractNGrams(words, stopStem, 2);
                         List<String> three_gram = extractNGrams(words, stopStem, 3);
 
-                        // System.out.println("URL: " + url);
-                        // System.out.println("title: " + title);
-                        // for (String word : words) {
-                        //     System.out.print(word + " ");
-                        // }
+                        words.addAll(two_gram);
+                        words.addAll(three_gram);
+                        
+                        // Calculate word frequency
+                        HashMap<String, Integer> wordFreq = WordFreq(words, stopStem);
 
-                        // System.out.println("last modification date: " + lastModificationDate);
-
-                        // System.out.println("page size: " + pageSize);
-                        // System.out.println("words: " + wordFreq.size());
-
-                        // for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
-                        //     System.out.println(entry.getKey() + " " + entry.getValue());
-                        // }
-
-                        // System.out.println("two-grams: " + two_gram.size());
-                        // for (String ngram : two_gram) {
-                        //     System.out.println(ngram);
-                        // }
-
-                        // System.out.println("three-grams: " + three_gram.size());
-                        // for (String ngram : three_gram) {
-                        //     System.out.println(ngram);
-                        // }
-
+                        Integer maxFreq = 0;
                         // Process each word and update indexers
                         for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
                             String word = entry.getKey();
                             Long wordid;
+                            if (entry.getValue() > maxFreq) {
+                                maxFreq = entry.getValue();
+                            }
                             if (indexer.containsKey(WordMapping, word)) {
                                 wordid = Long.valueOf(indexer.getValue(WordMapping, word));
                             } else {
@@ -167,20 +161,10 @@ public class CrawlandIndex {
                             indexer.addMapping(BodyWordMapping, String.valueOf(PageID), String.valueOf(wordid) + "|" + String.valueOf(entry.getValue()), true);
                         }
 
-                        // Extract child links and update PageChild indexer
-                        List<String> links = spider.extractLinks();
-                        List<String> child = new ArrayList<>();
 
-                        indexer.addPageInfo(PageInfoIndexer, String.valueOf(PageID), title, url, lastModificationDate, pageSize);
-                        for (String link : links) {
-                            if (!visited.contains(link)) {
-                                child.add(link);
-                            }
-                            if (!visited.contains(link) && !queue.contains(link)) {
-                                queue.add(link);
-                            }
-                        }
-                        indexer.addPageChild(PageURlMapping, PageChild, String.valueOf(PageID), child);
+                        indexer.addPageInfo(PageInfoIndexer, String.valueOf(PageID), title, url, lastModificationDate, pageSize, maxFreq);
+
+                        indexer.addPageChild(PageChild, String.valueOf(PageID), child);
 
                     } catch (Exception e) {
                         // Print stack trace and continue crawling
@@ -189,7 +173,8 @@ public class CrawlandIndex {
 
                 }
             }
-            
+            indexer.addInvertedTFIDF(PageInfoIndexer, InvertedBodyWord);
+            indexer.convertPageChild(PageURlMapping, PageChild);
             // Close indexers
             indexer.finalize();
 
@@ -274,16 +259,16 @@ public class CrawlandIndex {
             // Print all key-value pairs in the index
             System.out.println("PageInfoIndexer");
             indexer.printAll(PageInfoIndexer);
-            // System.out.println("PageURlMapping");
-            // indexer.printAll(PageURlMapping);
+            System.out.println("PageURlMapping");
+            indexer.printAll(PageURlMapping);
             System.out.println("PageChild");
             indexer.printAll(PageChild);
-            // System.out.println("WordMapping");
-            // indexer.printAll(WordMapping);
-            // System.out.println("BodyWordMapping");
-            // indexer.printAll(BodyWordMapping);
-            // System.out.println("InvertedBodyWord");
-            // indexer.printAll(InvertedBodyWord);
+            System.out.println("WordMapping");
+            indexer.printAll(WordMapping);
+            System.out.println("BodyWordMapping");
+            indexer.printAll(BodyWordMapping);
+            System.out.println("InvertedBodyWord");
+            indexer.printAll(InvertedBodyWord);
 
             // Close indexers
             indexer.finalize();

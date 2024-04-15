@@ -2,10 +2,12 @@ import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.htree.HTree;
 import jdbm.helper.FastIterator;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.io.File;
 import java.io.IOException;
@@ -95,29 +97,57 @@ public class Indexer {
     }
 
     // Add PageInfo entry to index
-    public void addPageInfo(HTree hashtable, String PageID, String PageTitle, String URL, String LastModificationDate, Long SizeofPage)
+    public void addPageInfo(HTree hashtable, String PageID, String PageTitle, String URL, String LastModificationDate, Long SizeofPage, Integer maxFreq)
             throws IOException {
-        hashtable.put(PageID, PageTitle + "|" + URL + "|" + LastModificationDate + "|" + SizeofPage);
+        hashtable.put(PageID, PageTitle + "|" + URL + "|" + LastModificationDate + "|" + SizeofPage + "|" + maxFreq);
     }
 
     // Add PageChildMapping entry to index
-    public void addPageChild(HTree URLTable, HTree PageChildTable, String PageID, List<String> ChildURL) throws IOException {
+    public void addPageChild(HTree PageChildTable, String PageID, List<String> ChildURL) throws IOException {
         if (ChildURL.size() == 0) {
             return;
         }
-        // Convert ChildURL to PageID
-        for (int i = 0; i < ChildURL.size(); i++) {
-            String child = (String) URLTable.get(ChildURL.get(i));
-            if (child == null) {
-                // String ID = String.valueOf(getSize(URLTable) + 1);
-                // addMapping(URLTable, ChildURL.get(i), ID);
-                // child = ID;
-                continue;
-            }
-            ChildURL.set(i, child);
-        }
         String child = String.join(",", ChildURL);
         PageChildTable.put(PageID, child);
+    }
+
+    // Convert PageChildMapping entry to index
+    public void convertPageChild(HTree URLTable, HTree PageChildTable) throws IOException {
+        List<String> keysToRemove = new ArrayList<>();
+
+        // Create a copy of the keys to avoid ConcurrentModificationException
+        Set<String> keys = new HashSet<>();
+        FastIterator iter = PageChildTable.keys();
+        String key;
+        while ((key = (String) iter.next()) != null) {
+            keys.add(key);
+        }
+    
+        // Iterate over the copied keys
+        for (String currentKey : keys) {
+            String value = (String) PageChildTable.get(currentKey);
+            String[] values = value.split(",");
+            List<String> updatedValues = new ArrayList<>();
+            for (String childKey : values) {
+                String childValue = (String) URLTable.get(childKey);
+                if (childValue != null && !childValue.isEmpty()) {
+                    updatedValues.add(childValue);
+                }
+            }
+            // Update the value in PageChildTable
+            if (!updatedValues.isEmpty()) {
+                value = String.join(",", updatedValues);
+                PageChildTable.put(currentKey, value);
+            } else {
+                // Add the key to keysToRemove list for removal
+                keysToRemove.add(currentKey);
+            }
+        }
+    
+        // Remove keys that need to be removed
+        for (String keyToRemove : keysToRemove) {
+            PageChildTable.remove(keyToRemove);
+        }
     }
 
     // Add InvertedBodyWord entry to index
@@ -157,13 +187,44 @@ public class Indexer {
         }
     }
 
+    // Add TFIDF/Max entry to index
+    public void addInvertedTFIDF(HTree PageInfo, HTree InvertedWord) throws IOException {
+        FastIterator iter = InvertedWord.keys();
+        String key;
+        FastIterator iter2 = PageInfo.keys();
+        String key2;
+        Map<Long, Integer> max = new HashMap<Long, Integer>();
+        while ((key2 = (String) iter2.next()) != null) {
+            String value = (String) PageInfo.get(key2);
+            String[] values = value.split("\\|");
+            max.put(Long.parseLong(key2), Integer.parseInt(values[4]));
+        }
+        double n = getSize(PageInfo);
+        while ((key = (String) iter.next()) != null) {
+            String value = (String) InvertedWord.get(key);
+            Map<Long, String[]> values = getInvertedWord(InvertedWord, key);
+            for (Map.Entry<Long, String[]> entry : values.entrySet()) {
+                String[] temp = entry.getValue();
+                int maxFreq = max.get(entry.getKey());
+                double TF = Double.parseDouble(temp[0]) / maxFreq;
+                double IDF = Math.log(n / values.size());
+                double TFIDF = Math.round(TF * IDF * 100000.0) / 100000.0;
+                addInvertedWord(InvertedWord, key, String.valueOf(entry.getKey()), temp[0], String.valueOf(TFIDF));
+            }
+        }
+        
+    }
+
     // Print all key-value pairs in the index
     public void printAll(HTree hashtable) throws IOException {
+        Integer count = 0;
         FastIterator iter = hashtable.keys();
         String key;
-        while ((key = (String) iter.next()) != null) {
+        // Maximum number of key-value pairs to print is 30
+        while (((key = (String) iter.next()) != null) && (count < 30)) {
             String value = (String) hashtable.get(key);
             System.out.println(key + " " + value);
+            count++;
         }
     }
 
