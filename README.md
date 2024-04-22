@@ -17,8 +17,8 @@ This repository contains code for a web crawler and indexing system developed as
       - [Spider:](#spider)
       - [CrawlandIndex:](#crawlandindex)
       - [TestProgram:](#testprogram)
-    - [Executing the Program](#executing-the-program)
-    - [Running the Frontend](#running-the-frontend)
+      - [Executing the Program](#executing-the-program)
+      - [Running the Frontend](#running-the-frontend)
 
 ## Instructions
 
@@ -51,7 +51,7 @@ javac -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "CrawlandIndex.java"
 javac "TestProgram.java"
 ```
 
-### Executing the Program
+#### Executing the Program
 After compiling the Java files, execute the TestProgram to initiate the web crawling and indexing process using the following command:
 
 ```shell
@@ -63,7 +63,7 @@ After executing the TestProgram, the following files will be generated:
 (The database.db should be copied to the frontend folder automatically by the TestProgram. If not, please copy it manually for the frontend to work properly.)
 
 
-### Running the Frontend
+#### Running the Frontend
 Before running the frontend, please set up the system environment variables for Apache Tomcat as follows:
 1. CATALINA_HOME = "{path to this project}\COMP4321-Crawler\src\apache-tomcat-10.1.20"
 2. JAVA_HOME = "{path to your JDK}" (e.g. "C:\Program Files\Eclipse Adoptium\jdk-21.0.2.13-hotspot")
