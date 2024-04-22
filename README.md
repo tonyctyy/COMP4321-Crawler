@@ -18,8 +18,7 @@ This repository contains code for a web crawler and indexing system developed as
       - [CrawlandIndex:](#crawlandindex)
       - [TestProgram:](#testprogram)
     - [Executing the Program](#executing-the-program)
-  - [Bugs](#bugs)
-  - [Discussion](#discussion)
+    - [Running the Frontend](#running-the-frontend)
 
 ## Instructions
 
@@ -59,18 +58,23 @@ After compiling the Java files, execute the TestProgram to initiate the web craw
 java -cp "../lib/htmlparser.jar;../lib/jdbm-1.0.jar;." "TestProgram"
 ```
 
-## Bugs
-#1 WordID 33 is not found in the database. (No word is stored, i.e. " ") (Solved, need to add more special characters to the stopword.txt (e.g. | ))
+After executing the TestProgram, the following files will be generated:
+- "database.db" in the backend folder, "../data/" and in the frontend folder, "./apache-tomcat-10.1.20/webapps/comp4321/WEB-INF/database/".
+(The database.db should be copied to the frontend folder automatically by the TestProgram. If not, please copy it manually for the frontend to work properly.)
 
 
-## Discussion
-- How to handle unindexed child pages?
-  - Currently, we can't get the child pages id if the child page is not indexed. Then, how can we store the child pages id in the parent page? 
+### Running the Frontend
+Before running the frontend, please set up the system environment variables for Apache Tomcat as follows:
+1. CATALINA_HOME = "{path to this project}\COMP4321-Crawler\src\apache-tomcat-10.1.20"
+2. JAVA_HOME = "{path to your JDK}" (e.g. "C:\Program Files\Eclipse Adoptium\jdk-21.0.2.13-hotspot")
 
-- How to calculate the weighting of query?
+After setting up the system environment variables, run the following command to start the Apache Tomcat server (Please make sure you are in the src directory):
 
-- How to store the words of the title in each page? (Solved)
-  - Currently, the project extracts words from the body content of each page using the Spider class. We may consider enhancing this process to specifically extract words from the title tag of HTML pages.
+```shell
+apache-tomcat-10.1.20/bin/startup.bat
+```
 
-- How to manage multiple databases? (Solved)
-    - Currently, different RecordManager instances are used during execution, and all database files are stored in the same directory. Alternatively, we can use a single RecordManager and store all tables in the same database file. This approach needs further discussion.
+Then, open a web browser and navigate to the following URL to access the frontend:
+```shell
+http://localhost:8080/comp4321/
+```

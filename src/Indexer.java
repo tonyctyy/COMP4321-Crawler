@@ -15,15 +15,15 @@ import java.io.IOException;
 public class Indexer {
     private RecordManager recman;
 
-    public Indexer(String recordmanager) throws IOException {
+    public Indexer(String dbPath) throws IOException {
         // Create data folder if not exists
-        String folderPath = "../data";
-        File folder = new File(folderPath);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
+        // String folderPath = "../data";
+        // File folder = new File(folderPath);
+        // if (!folder.exists()) {
+        //     folder.mkdirs();
+        // }
         // Database file path
-        String dbPath = folderPath + File.separator + recordmanager;
+        // String dbPath = folderPath + File.separator + recordmanager;
 
         // Create or load record manager
         recman = RecordManagerFactory.createRecordManager(dbPath);
@@ -111,6 +111,26 @@ public class Indexer {
         PageChildTable.put(PageID, child);
     }
 
+    // Convert PageParentMapping key from URL to PageID
+    public void convertPageParent(HTree URLTable, HTree PageParentTable) throws IOException {
+        List<String> keysToRemove = new ArrayList<>();
+
+        FastIterator iter = PageParentTable.keys();
+        String key;
+        while ((key = (String) iter.next()) != null) {
+            String value = (String) PageParentTable.get(key);
+            String parentValue = (String) URLTable.get(key);
+            if (parentValue != null && !parentValue.isEmpty()) {
+                PageParentTable.put(parentValue, value);
+            }
+            keysToRemove.add(key);
+        }
+
+        for (String keyToRemove : keysToRemove) {
+            PageParentTable.remove(keyToRemove);
+        }
+    }
+
     // Convert PageChildMapping entry to index
     public void convertPageChild(HTree URLTable, HTree PageChildTable) throws IOException {
         List<String> keysToRemove = new ArrayList<>();
@@ -122,6 +142,8 @@ public class Indexer {
         while ((key = (String) iter.next()) != null) {
             keys.add(key);
         }
+
+        
     
         // Iterate over the copied keys
         for (String currentKey : keys) {
@@ -216,12 +238,12 @@ public class Indexer {
     }
 
     // Print all key-value pairs in the index
-    public void printAll(HTree hashtable) throws IOException {
+    public void printAll(HTree hashtable, Integer maxCount) throws IOException {
         Integer count = 0;
         FastIterator iter = hashtable.keys();
         String key;
         // Maximum number of key-value pairs to print is 30
-        while (((key = (String) iter.next()) != null) && (count < 30)) {
+        while (((key = (String) iter.next()) != null) && (count < maxCount)) {
             String value = (String) hashtable.get(key);
             System.out.println(key + " " + value);
             count++;

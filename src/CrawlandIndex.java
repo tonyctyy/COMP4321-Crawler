@@ -11,6 +11,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import java.util.StringTokenizer;
 
 import jdbm.htree.HTree;
 
@@ -22,6 +23,7 @@ public class CrawlandIndex {
     private static Queue<String> queue = new LinkedList<>();
     private static List<String> indexedPages = new ArrayList<>();
     private static String STOPWORDS = "../docs/stopwords.txt";
+    private static String dbPath = "../data/database";
 
 
     public CrawlandIndex(String _staring_url, int _max_pages) {
@@ -66,18 +68,49 @@ public class CrawlandIndex {
         return ngrams;
     }
 
+    // Method to index the list of words into database
+    public static void indexWords (HashMap<String, Integer> wordFreq, HTree WordMapping, HTree WordIndex, HTree InvertedWordIndex, Indexer indexer, Long PageID) {
+        // Process each word and update indexers
+        try{
+            for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
+                String word = entry.getKey();
+                Long wordid;
+                if (indexer.containsKey(WordMapping, word)) {
+                    wordid = Long.valueOf(indexer.getValue(WordMapping, word));
+                } else {
+                    wordid = indexer.getSize(WordMapping) + 1;
+                    indexer.addMapping(WordMapping, word, String.valueOf(wordid));
+                };
+
+                Map<Long, String[]> invertedBody = indexer.getInvertedWord(InvertedWordIndex, String.valueOf(wordid)); 
+
+                indexer.addInvertedWord(InvertedWordIndex, String.valueOf(wordid), String.valueOf(PageID), String.valueOf(entry.getValue()), "1");
+
+                if (WordIndex!=null){
+                    indexer.addMapping(WordIndex, String.valueOf(PageID), String.valueOf(wordid) + "|" + String.valueOf(entry.getValue()) + "|" + word, true);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+
     // Method to crawl and index web pages
     public static void crawlAndIndexPages() {
         queue.add(staring_url);
         try {
-            Indexer indexer = new Indexer ("database");
+            Indexer indexer = new Indexer (dbPath);
 
             HTree PageInfoIndexer = indexer.getOrCreateHTree("PageInfo");
             HTree PageURlMapping = indexer.getOrCreateHTree("PageURlMapping");
             HTree PageChild = indexer.getOrCreateHTree("PageChild");
+            HTree PageParent = indexer.getOrCreateHTree("PageParent");
             HTree WordMapping = indexer.getOrCreateHTree("WordMapping");
             HTree BodyWordMapping = indexer.getOrCreateHTree("BodyWordMapping");
             HTree InvertedBodyWord = indexer.getOrCreateHTree("InvertedBodyWord");
+            HTree InvertedTitleWord = indexer.getOrCreateHTree("InvertedTitleWord");
 
 
             StopStem stopStem = new StopStem(STOPWORDS);
@@ -113,6 +146,7 @@ public class CrawlandIndex {
                         for (String link : links) {
                             if (!visited.contains(link)) {
                                 child.add(link);
+                                indexer.addMapping(PageParent, link, String.valueOf(PageID));
                             }
                             if (!visited.contains(link) && !queue.contains(link)) {
                                 queue.add(link);
@@ -135,36 +169,43 @@ public class CrawlandIndex {
 
                         words.addAll(two_gram);
                         words.addAll(three_gram);
+
+                        // spilt the title into words
+                        StringTokenizer st = new StringTokenizer(title);
+                        List<String> title_words = new ArrayList<>();
+                        while (st.hasMoreTokens()) {
+                            title_words.add(st.nextToken());
+                        }
+                        
+                        List<String> title_two_gram = extractNGrams(title_words, stopStem, 2);
+                        List<String> title_three_gram = extractNGrams(title_words, stopStem, 3);
+
+                        title_words.addAll(title_two_gram);
+                        title_words.addAll(title_three_gram);
+                        
                         
                         // Calculate word frequency
                         HashMap<String, Integer> wordFreq = WordFreq(words, stopStem);
 
+                        indexWords(wordFreq, WordMapping, BodyWordMapping, InvertedBodyWord, indexer, PageID);
+
+                        // Calculate word frequency for title
+                        HashMap<String, Integer> titleWordFreq = WordFreq(title_words, stopStem);
+
+                        indexWords(titleWordFreq, WordMapping, null, InvertedTitleWord, indexer, PageID);
+
                         Integer maxFreq = 0;
-                        // Process each word and update indexers
                         for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
-                            String word = entry.getKey();
-                            Long wordid;
                             if (entry.getValue() > maxFreq) {
                                 maxFreq = entry.getValue();
                             }
-                            if (indexer.containsKey(WordMapping, word)) {
-                                wordid = Long.valueOf(indexer.getValue(WordMapping, word));
-                            } else {
-                                wordid = indexer.getSize(WordMapping) + 1;
-                                indexer.addMapping(WordMapping, word, String.valueOf(wordid));
-                            };
-
-                            Map<Long, String[]> invertedBody = indexer.getInvertedWord(InvertedBodyWord, String.valueOf(wordid)); 
-
-                            indexer.addInvertedWord(InvertedBodyWord, String.valueOf(wordid), String.valueOf(PageID), String.valueOf(entry.getValue()), "1");
-
-                            indexer.addMapping(BodyWordMapping, String.valueOf(PageID), String.valueOf(wordid) + "|" + String.valueOf(entry.getValue()), true);
                         }
-
 
                         indexer.addPageInfo(PageInfoIndexer, String.valueOf(PageID), title, url, lastModificationDate, pageSize, maxFreq);
 
                         indexer.addPageChild(PageChild, String.valueOf(PageID), child);
+
+                        
 
                     } catch (Exception e) {
                         // Print stack trace and continue crawling
@@ -175,6 +216,8 @@ public class CrawlandIndex {
             }
             indexer.addInvertedTFIDF(PageInfoIndexer, InvertedBodyWord);
             indexer.convertPageChild(PageURlMapping, PageChild);
+            indexer.convertPageParent(PageURlMapping, PageParent);
+
             // Close indexers
             indexer.finalize();
 
@@ -195,6 +238,7 @@ public class CrawlandIndex {
             HTree WordMapping = indexer.getOrCreateHTree("WordMapping");
             HTree BodyWordMapping = indexer.getOrCreateHTree("BodyWordMapping");
             HTree InvertedBodyWord = indexer.getOrCreateHTree("InvertedBodyWord");
+            HTree InvertedTitleWord = indexer.getOrCreateHTree("InvertedTitleWord");
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath));
 
@@ -247,28 +291,35 @@ public class CrawlandIndex {
     
     public static void displayDB() {
         try {
-            Indexer indexer = new Indexer ("database");
+            Indexer indexer = new Indexer (dbPath);
 
             HTree PageInfoIndexer = indexer.getOrCreateHTree("PageInfo");
             HTree PageURlMapping = indexer.getOrCreateHTree("PageURlMapping");
             HTree PageChild = indexer.getOrCreateHTree("PageChild");
+            HTree PageParent = indexer.getOrCreateHTree("PageParent");
             HTree WordMapping = indexer.getOrCreateHTree("WordMapping");
             HTree BodyWordMapping = indexer.getOrCreateHTree("BodyWordMapping");
             HTree InvertedBodyWord = indexer.getOrCreateHTree("InvertedBodyWord");
+            HTree InvertedTitleWord = indexer.getOrCreateHTree("InvertedTitleWord");
 
+            Integer maxCount = 30;
             // Print all key-value pairs in the index
-            System.out.println("PageInfoIndexer");
-            indexer.printAll(PageInfoIndexer);
-            System.out.println("PageURlMapping");
-            indexer.printAll(PageURlMapping);
-            System.out.println("PageChild");
-            indexer.printAll(PageChild);
-            System.out.println("WordMapping");
-            indexer.printAll(WordMapping);
-            System.out.println("BodyWordMapping");
-            indexer.printAll(BodyWordMapping);
-            System.out.println("InvertedBodyWord");
-            indexer.printAll(InvertedBodyWord);
+            // System.out.println("PageInfoIndexer");
+            // indexer.printAll(PageInfoIndexer);
+            // System.out.println("PageURlMapping");
+            // indexer.printAll(PageURlMapping);
+            // System.out.println("PageChild");
+            // indexer.printAll(PageChild, maxCount);
+            // System.out.println("WordMapping");
+            // indexer.printAll(WordMapping);
+            // System.out.println("BodyWordMapping");
+            // indexer.printAll(BodyWordMapping);
+            // System.out.println("InvertedBodyWord");
+            // indexer.printAll(InvertedBodyWord);
+            // System.out.println("PageParent");
+            // indexer.printAll(PageParent, maxCount);
+            System.out.println("InvertedTitleWord");
+            indexer.printAll(InvertedTitleWord, maxCount);
 
             // Close indexers
             indexer.finalize();
