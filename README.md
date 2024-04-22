@@ -8,6 +8,7 @@ This repository contains code for a web crawler and indexing system developed as
 
 ## Table of Contents
 
+
 - [COMP4321-Crawler](#comp4321-crawler)
   - [Table of Contents](#table-of-contents)
   - [Instructions](#instructions)
@@ -20,7 +21,11 @@ This repository contains code for a web crawler and indexing system developed as
       - [Executing the Program](#executing-the-program)
       - [Running the Frontend](#running-the-frontend)
 
+
 ## Instructions
+
+### Prerequisites
+- OpenJDK version: 21.0.2
 
 ### Building the Project
 
