@@ -1,4 +1,5 @@
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import org.htmlparser.beans.StringBean;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
@@ -6,6 +7,7 @@ import org.htmlparser.Parser;
 import org.htmlparser.filters.AndFilter;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.LinkTag;
+import org.htmlparser.tags.MetaTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import java.util.StringTokenizer;
@@ -24,29 +26,36 @@ public class Spider {
         url = _url;
     }
 
-    // Extracts words from the webpage content
-    public Vector<String> extractWords() throws ParserException {
+    public List<String> extractWords() throws ParserException {
         StringBean sb = new StringBean();
         sb.setURL(url);
         String content = sb.getStrings();
-        StringTokenizer st = new StringTokenizer(content);
-        Vector<String> v = new Vector<String>();
-        while(st.hasMoreTokens()){
-            v.add(st.nextToken());
+
+        // remove the title from the list of words
+        String title = extractTitle();
+        int titleIndex = content.indexOf(title);
+        if (titleIndex != -1) {
+            content = content.substring(titleIndex + title.length());
         }
-        return v;
+
+        StringTokenizer st = new StringTokenizer(content);
+        List<String> list = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            list.add(st.nextToken());
+        }
+        return list;
     }
 
     // Extracts links from the webpage
-    public Vector<String> extractLinks() throws ParserException {
-        Vector<String> v_link = new Vector<String>();
+    public List<String> extractLinks() throws ParserException {
+        List<String> list = new ArrayList<>();
         LinkBean lb = new LinkBean();
         lb.setURL(url);
         URL[] URL_array = lb.getLinks();
-        for(int i = 0; i < URL_array.length; i++){
-            v_link.add(URL_array[i].toString());
+        for (int i = 0; i < URL_array.length; i++) {
+            list.add(URL_array[i].toString());
         }
-        return v_link;
+        return list;
     }
 
     // Extracts the title of the webpage
@@ -75,10 +84,22 @@ public class Spider {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 return sdf.format(new Date(lastModifiedTimestamp));
             }
+
+            // If the last modified date is not available in the HTTP header, try to extract it from the webpage
+
+            Parser parser = new Parser(url);
+            NodeClassFilter filter = new NodeClassFilter(MetaTag.class);
+            NodeList metaTags = parser.extractAllNodesThatMatch(filter);
+            for (int i = 0; i < metaTags.size(); i++) {
+                MetaTag metaTag = (MetaTag) metaTags.elementAt(i);
+                if (metaTag.getMetaTagName().equalsIgnoreCase("last-modified")) {
+                    return metaTag.getAttribute("content");
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // need to implement the code to get the last modified date if it is not provided in the header
+
         return null;
     }
 
@@ -88,13 +109,18 @@ public class Spider {
             URL pageUrl = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) pageUrl.openConnection();
             long pageSize = connection.getContentLength();
-            if (pageSize != -1){
+            if (pageSize != -1) {
                 return pageSize;
+            }
+            else {
+                StringBean sb = new StringBean();
+                sb.setURL(url);
+                String content = sb.getStrings();
+                return content.length();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // need to implement the code to get the page size if it is not provided in the header
         return -1;
     }
 }
