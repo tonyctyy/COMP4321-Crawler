@@ -17,6 +17,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.htmlparser.tags.TitleTag;
+import java.util.HashMap;
 
 public class Spider {
     private String url;
@@ -26,7 +27,18 @@ public class Spider {
         url = _url;
     }
 
-    public List<String> extractWords() throws ParserException {
+    public HashMap<String, Integer> addFrequency(HashMap<String, Integer> wordFreq, String word) {
+        if (wordFreq.containsKey(word)) {
+            wordFreq.put(word, wordFreq.get(word) + 1);
+        } else {
+            wordFreq.put(word, 1);
+        }
+        return wordFreq;
+    }
+
+    // Extracts words from the webpage 1-gram, 2-gram, 3-gram (after stop stem)
+    // Returns a hashmap of words and their frequencies
+    public HashMap<String, Integer> extractWords(StopStem stopStem) throws ParserException {
         StringBean sb = new StringBean();
         sb.setURL(url);
         String content = sb.getStrings();
@@ -39,11 +51,75 @@ public class Spider {
         }
 
         StringTokenizer st = new StringTokenizer(content);
-        List<String> list = new ArrayList<>();
+        HashMap<String, Integer> wordFreq = new HashMap<String, Integer>();
+
+        String prev = "";
+        String prev_2 = "";
         while (st.hasMoreTokens()) {
-            list.add(st.nextToken());
+            String this_word = st.nextToken().toLowerCase();
+            String next_word = "";
+            String next_2_word = "";
+            String this_stem = stopStem.stem(this_word);
+            String next_stem = "";
+            String next_2_stem = "";
+            boolean this_is_stop = stopStem.isStopWord(this_word);
+            boolean next_is_stop = true;
+            boolean next_2_is_stop = true;
+            if (st.hasMoreTokens()){
+                next_word = st.nextToken().toLowerCase();
+                if (next_word!=""){
+                    next_stem = stopStem.stem(next_word);
+                    next_is_stop = stopStem.isStopWord(next_word);
+                }
+                if (st.hasMoreTokens()){
+                    next_2_word = st.nextToken().toLowerCase();
+                    if (next_2_word!=""){
+                        next_2_stem = stopStem.stem(next_2_word);
+                        next_2_is_stop = stopStem.isStopWord(next_2_word);
+                    }
+                }
+            }
+
+            if (!this_is_stop){
+                wordFreq = addFrequency(wordFreq, this_stem);
+                if (!next_is_stop){
+                    wordFreq = addFrequency(wordFreq, this_stem + " " + next_stem);
+                    if(!next_2_is_stop){
+                        wordFreq = addFrequency(wordFreq, this_stem + " " + next_stem + " " + next_2_stem);
+                    }
+                }
+                if (prev != ""){
+                    wordFreq = addFrequency(wordFreq, prev + " " + this_stem);
+                    if (prev_2 != ""){
+                        wordFreq = addFrequency(wordFreq, prev_2 + " " + prev + " " + this_stem);
+                    }
+                }
+            }
+
+            if (!next_is_stop){
+                wordFreq = addFrequency(wordFreq, next_stem);
+                if ((!this_is_stop) && (prev != "")){
+                    wordFreq = addFrequency(wordFreq, prev + " " + this_stem + " " + next_stem);
+                }
+                if (!next_2_is_stop){
+                    wordFreq = addFrequency(wordFreq, next_stem + " " + next_2_stem);
+                }
+                prev_2 = next_stem;
+            }
+            else {
+                prev_2 = "";
+            }
+
+            if (!next_2_is_stop){
+                wordFreq = addFrequency(wordFreq, next_2_stem);
+                prev = next_2_stem;
+            }
+            else {
+                prev = "";
+            }
+
         }
-        return list;
+        return wordFreq;
     }
 
     // Extracts links from the webpage

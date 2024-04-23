@@ -44,8 +44,7 @@ public class CrawlandIndex {
                 } else {
                     wordFreq.put(stemmedWord, 1);
                 }
-            }
-        }
+            }}
         return wordFreq;
     };
 
@@ -158,17 +157,14 @@ public class CrawlandIndex {
                             continue;
                         }
 
+                        System.out.println("Indexing page: " + url);
                         String title = spider.extractTitle();
 
                         Long pageSize = spider.getPageSize();
                         
-                        List<String> words = spider.extractWords();
+                        HashMap<String, Integer> wordFreq = spider.extractWords(stopStem);
 
-                        List<String> two_gram = extractNGrams(words, stopStem, 2);
-                        List<String> three_gram = extractNGrams(words, stopStem, 3);
-
-                        words.addAll(two_gram);
-                        words.addAll(three_gram);
+                        indexWords(wordFreq, WordMapping, BodyWordMapping, InvertedBodyWord, indexer, PageID);
 
                         // spilt the title into words
                         StringTokenizer st = new StringTokenizer(title);
@@ -182,12 +178,6 @@ public class CrawlandIndex {
 
                         title_words.addAll(title_two_gram);
                         title_words.addAll(title_three_gram);
-                        
-                        
-                        // Calculate word frequency
-                        HashMap<String, Integer> wordFreq = WordFreq(words, stopStem);
-
-                        indexWords(wordFreq, WordMapping, BodyWordMapping, InvertedBodyWord, indexer, PageID);
 
                         // Calculate word frequency for title
                         HashMap<String, Integer> titleWordFreq = WordFreq(title_words, stopStem);
