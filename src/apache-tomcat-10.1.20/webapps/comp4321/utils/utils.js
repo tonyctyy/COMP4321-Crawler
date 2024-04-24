@@ -15,7 +15,7 @@ function updateUI(response) {
         return;
     } else {
         var totalPages = response.totalPage
-        $("#num-results").append("<p>" + order.length + " relevant results out of "+ totalPages +".</p>");
+        $("#num-results").append("<p>" + order.length + " relevant results.</p>");
     }
 
     // Calculate the number of tabs needed based on the total number of results

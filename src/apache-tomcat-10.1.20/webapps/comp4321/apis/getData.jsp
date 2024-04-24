@@ -251,10 +251,16 @@
 
     // the json output will have two parts: sorted pages and details of each page. the sorted pages will be sorted by the cosine similarity score and the details of each page will include the title, url, last modification date, size of the page, top 5 key words, child pages (title and url) and the similarity score
 
+    int count_page = 0;
+
     json.append("\"sortedPages\": [");
 
     // output the sorted pages (pageID only)
     for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
+        count_page++;
+        if (count_page > 50) {
+            break;
+        }
         json.append(entry.getKey() + ",");
     }
 
@@ -265,14 +271,6 @@
 
     json.append("],");
 
-    // add the total number of pages in the PageInfo database (need to count the total number of page)
-    Integer totalPage = 0;
-    FastIterator iter = PageInfo.keys();
-    String key;
-    while ((key = (String) iter.next()) != null) {
-        totalPage++;
-    }
-    json.append("\"totalPage\": " + totalPage + ",");
 
     // if there is no result from the search, return an empty JSON object
     if (PageInfos.size() == 0) {
