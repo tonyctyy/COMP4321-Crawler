@@ -68,8 +68,9 @@ public class CrawlandIndex {
     }
 
     // Method to index the list of words into database
-    public static void indexWords (HashMap<String, Integer> wordFreq, HTree WordMapping, HTree WordIndex, HTree InvertedWordIndex, Indexer indexer, Long PageID) {
+    public static Long [] indexWords (HashMap<String, Integer> wordFreq, HTree WordMapping, HTree WordIndex, HTree InvertedWordIndex, Indexer indexer, Long PageID, Long WordID) {
         // Process each word and update indexers
+        Integer maxFreq = 0;
         try{
             for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
                 String word = entry.getKey();
@@ -77,11 +78,16 @@ public class CrawlandIndex {
                 if (indexer.containsKey(WordMapping, word)) {
                     wordid = Long.valueOf(indexer.getValue(WordMapping, word));
                 } else {
-                    wordid = indexer.getSize(WordMapping) + 1;
+                    wordid = WordID + 1;
+                    WordID ++;
                     indexer.addMapping(WordMapping, word, String.valueOf(wordid));
                 };
 
                 Map<Long, String[]> invertedBody = indexer.getInvertedWord(InvertedWordIndex, String.valueOf(wordid)); 
+
+                if (entry.getValue() > maxFreq) {
+                    maxFreq = entry.getValue();
+                }
 
                 indexer.addInvertedWord(InvertedWordIndex, String.valueOf(wordid), String.valueOf(PageID), String.valueOf(entry.getValue()), "1");
 
@@ -93,7 +99,8 @@ public class CrawlandIndex {
         catch (Exception e) {
             e.printStackTrace();
         }
-        return;
+        Long [] result = {WordID, Long.valueOf(maxFreq)};
+        return result;
     }
 
     // Method to crawl and index web pages
@@ -116,8 +123,12 @@ public class CrawlandIndex {
 
             long PageID = indexer.getSize(PageInfoIndexer);
 
+            long initialWordSize = indexer.getSize(WordMapping);
+
             // Loop until the queue is empty or maximum pages limit is reached
             while (!queue.isEmpty() && indexedPages.size() < max_pages) {
+                // long startTime = System.nanoTime();
+
                 String url = queue.poll();
                 if (!visited.contains(url)) {
                     PageID++;
@@ -164,7 +175,12 @@ public class CrawlandIndex {
                         
                         HashMap<String, Integer> wordFreq = spider.extractWords(stopStem);
 
-                        indexWords(wordFreq, WordMapping, BodyWordMapping, InvertedBodyWord, indexer, PageID);
+                        long wordID = initialWordSize + 1;
+                        
+                        Long[] results = indexWords(wordFreq, WordMapping, BodyWordMapping, InvertedBodyWord, indexer, PageID, wordID);
+
+                        wordID = results[0];
+ 
 
                         // spilt the title into words
                         StringTokenizer st = new StringTokenizer(title);
@@ -182,20 +198,13 @@ public class CrawlandIndex {
                         // Calculate word frequency for title
                         HashMap<String, Integer> titleWordFreq = WordFreq(title_words, stopStem);
 
-                        indexWords(titleWordFreq, WordMapping, null, InvertedTitleWord, indexer, PageID);
+                        wordID = indexWords(titleWordFreq, WordMapping, null, InvertedTitleWord, indexer, PageID, wordID)[0];
 
-                        Integer maxFreq = 0;
-                        for (Map.Entry<String, Integer> entry : wordFreq.entrySet()) {
-                            if (entry.getValue() > maxFreq) {
-                                maxFreq = entry.getValue();
-                            }
-                        }
+                        Integer maxFreq = Math.toIntExact(results[1]) ;
 
                         indexer.addPageInfo(PageInfoIndexer, String.valueOf(PageID), title, url, lastModificationDate, pageSize, maxFreq);
 
                         indexer.addPageChild(PageChild, String.valueOf(PageID), child);
-
-                        
 
                     } catch (Exception e) {
                         // Print stack trace and continue crawling
@@ -203,6 +212,15 @@ public class CrawlandIndex {
                     }
 
                 }
+                // // count the time used to extract words
+                // long endTime = System.nanoTime();
+                // long duration = (endTime - startTime);
+
+                // // convert the duration to second 
+                // double seconds = (double)duration / 1_000_000_000.0;
+
+                // System.out.println("Time used : " + seconds + " seconds");
+                                   
             }
             indexer.addInvertedTFIDF(PageInfoIndexer, InvertedBodyWord);
             indexer.convertPageChild(PageURlMapping, PageChild);

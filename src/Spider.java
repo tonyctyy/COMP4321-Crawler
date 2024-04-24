@@ -43,13 +43,6 @@ public class Spider {
         sb.setURL(url);
         String content = sb.getStrings();
 
-        // remove the title from the list of words
-        String title = extractTitle();
-        int titleIndex = content.indexOf(title);
-        if (titleIndex != -1) {
-            content = content.substring(titleIndex + title.length());
-        }
-
         StringTokenizer st = new StringTokenizer(content);
         HashMap<String, Integer> wordFreq = new HashMap<String, Integer>();
 

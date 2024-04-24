@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 
 public class TestProgram {
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
         String startUrl = "https://www.cse.ust.hk/~kwtleung/COMP4321/testpage.htm";
         int max_pages = 100;
         CrawlandIndex crawler = new CrawlandIndex(startUrl, max_pages);
@@ -31,5 +32,13 @@ public class TestProgram {
             // Handle IO exception
             e.printStackTrace();
         }
+        // count the time used to extract words
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
+
+        // convert the duration to second 
+        double seconds = (double)duration / 1_000_000_000.0;
+
+        System.out.println("Time used : " + seconds + " seconds");
     }
 }

@@ -210,16 +210,19 @@ public class Indexer {
     }
 
     // Add TFIDF/Max entry to index
+    // Then, add the page magnitude to the PageInfo
     public void addInvertedTFIDF(HTree PageInfo, HTree InvertedWord) throws IOException {
         FastIterator iter = InvertedWord.keys();
         String key;
         FastIterator iter2 = PageInfo.keys();
         String key2;
         Map<Long, Integer> max = new HashMap<Long, Integer>();
+        Map<Long, Double> pageMag = new HashMap<Long, Double>();
         while ((key2 = (String) iter2.next()) != null) {
             String value = (String) PageInfo.get(key2);
             String[] values = value.split("\\|");
             max.put(Long.parseLong(key2), Integer.parseInt(values[4]));
+            pageMag.put(Long.parseLong(key2), 0.0);
         }
         double n = getSize(PageInfo);
         while ((key = (String) iter.next()) != null) {
@@ -232,9 +235,13 @@ public class Indexer {
                 double IDF = Math.log(n / values.size());
                 double TFIDF = Math.round(TF * IDF * 100000.0) / 100000.0;
                 addInvertedWord(InvertedWord, key, String.valueOf(entry.getKey()), temp[0], String.valueOf(TFIDF));
+                pageMag.put(entry.getKey(), pageMag.get(entry.getKey()) + Math.pow(TFIDF, 2));
             }
         }
-        
+        for (Map.Entry<Long, Double> entry : pageMag.entrySet()) {
+            double mag = Math.sqrt(entry.getValue());
+            PageInfo.put(String.valueOf(entry.getKey()), (String) PageInfo.get(String.valueOf(entry.getKey())) + "|" + mag);
+        }
     }
 
     // Print all key-value pairs in the index
