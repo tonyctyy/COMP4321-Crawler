@@ -127,6 +127,7 @@
 
     // get the list of indexed pages from the word id. in the format of Map<Integer, Map<Integer, Double>> where the key is the page id and the value is another map where the key is the word id and the value is the tf-idf score
     Map<Integer, Map<Integer, Double>> indexedBody = new HashMap<>();
+    Map<Integer, Double> indexedBodyScore = new HashMap<>();
     for (Map.Entry<Integer, Double> entry : query.entrySet()) {
         String wordID = entry.getKey().toString();
         String value = (String) InvertedBodyWord.get(wordID);
@@ -177,19 +178,21 @@
         int pageID = entryBody.getKey();
         Map<Integer, Double> indexedPage = entryBody.getValue();
         double dotProduct = 0.0;
-        double queryMagnitude = 0.0;
-        double indexedPageMagnitude = 0.0;
+        double queryMagnitude = 0.0;    
+        double indexedPageMagnitude = Double.parseDouble(((String) PageInfo.get(Integer.toString(pageID))).split("\\|")[5]);
         for (Map.Entry<Integer, Double> q : query.entrySet()) {
             int wordID = q.getKey();
             double queryScore = q.getValue();
             double indexedPageScore = indexedPage.getOrDefault(wordID, 0.0);
             dotProduct += queryScore * indexedPageScore;
             queryMagnitude += queryScore * queryScore;
-            indexedPageMagnitude += indexedPageScore * indexedPageScore;
         }
         queryMagnitude = Math.sqrt(queryMagnitude);
-        indexedPageMagnitude = Math.sqrt(indexedPageMagnitude);
         double similarity = dotProduct / (queryMagnitude * indexedPageMagnitude);
+
+        //double similarity = dotProduct;
+        //double similarity = indexedPageMagnitude;
+
         cosineSimilarityBody.put(pageID, similarity);
     }
 
@@ -199,17 +202,15 @@
         Map<Integer, Double> indexedPage = entryTitle.getValue();
         double dotProduct = 0.0;
         double queryMagnitude = 0.0;
-        double indexedPageMagnitude = 0.0;
+        double indexedPageMagnitude = Double.parseDouble(((String) PageInfo.get(Integer.toString(pageID))).split("\\|")[5]);
         for (Map.Entry<Integer, Double> q : query.entrySet()) {
             int wordID = q.getKey();
             double queryScore = q.getValue();
             double indexedPageScore = indexedPage.getOrDefault(wordID, 0.0);
             dotProduct += queryScore * indexedPageScore;
             queryMagnitude += queryScore * queryScore;
-            indexedPageMagnitude += indexedPageScore * indexedPageScore;
         }
         queryMagnitude = Math.sqrt(queryMagnitude);
-        indexedPageMagnitude = Math.sqrt(indexedPageMagnitude);
         double similarity = dotProduct / (queryMagnitude * indexedPageMagnitude);
         cosineSimilarityTitle.put(pageID, similarity);
     }
@@ -251,10 +252,16 @@
 
     // the json output will have two parts: sorted pages and details of each page. the sorted pages will be sorted by the cosine similarity score and the details of each page will include the title, url, last modification date, size of the page, top 5 key words, child pages (title and url) and the similarity score
 
+    int count_page = 0;
+
     json.append("\"sortedPages\": [");
 
     // output the sorted pages (pageID only)
     for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
+        count_page++;
+        if (count_page > 50) {
+            break;
+        }
         json.append(entry.getKey() + ",");
     }
 
@@ -265,14 +272,6 @@
 
     json.append("],");
 
-    // add the total number of pages in the PageInfo database (need to count the total number of page)
-    Integer totalPage = 0;
-    FastIterator iter = PageInfo.keys();
-    String key;
-    while ((key = (String) iter.next()) != null) {
-        totalPage++;
-    }
-    json.append("\"totalPage\": " + totalPage + ",");
 
     // if there is no result from the search, return an empty JSON object
     if (PageInfos.size() == 0) {

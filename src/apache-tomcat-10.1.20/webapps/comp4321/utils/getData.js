@@ -17,6 +17,7 @@ function getPages(input) {
         success: function (data) {
             // Handle successful response
             // Process the data and update the UI as needed
+            // console.log(data);
             updateUI(data); //in utils.js
         },
         error: function (xhr, status, error) {
