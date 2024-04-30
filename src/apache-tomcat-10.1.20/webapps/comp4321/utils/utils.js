@@ -1,4 +1,4 @@
-function updateUI(response) {
+function updateUI(response, useANDFlag = false) {
     // Clear the existing content of the data container
     $("#dataContainer").empty();
     $("#num-results").empty();
@@ -37,6 +37,9 @@ function updateUI(response) {
         for (var j = startIndex; j < endIndex; j++) {
             var page = pages[order[j]];
             var card = createCard(page);
+            if (useANDFlag) {
+                card.addClass('glowBGnoBlack');
+            }
             tabContent.append(card);
         }
 
@@ -174,3 +177,47 @@ $(document).on("click", ".show-more-btn", function() {
     // Update button text based on visibility
     $(this).text($(this).text() === "Show More" ? "Show Less" : "Show More");
 });
+
+function updateMergedUI(mergedList) {
+    // Clear the existing content of the data container
+    $("#dataContainer").empty();
+
+    let length = mergedList.length;
+
+    // Calculate the number of tabs needed based on the total number of results
+    var numTabs = Math.ceil(length / 5);
+
+    // Create a container for the tabs
+    var tabsContainer = $("<div class='tabs-container'></div>");
+
+    // Loop through each tab
+    for (var i = 0; i < numTabs; i++) {
+        // Calculate the start and end indices for the current tab
+        var startIndex = i * 5;
+        var endIndex = Math.min(startIndex + 5, length);
+
+        // Create a tab for the current subset of results
+        var tabContent = $("<div class='tab-content'></div>");
+
+        // Loop through the subset of results and create cards for each page
+        for (var j = startIndex; j < endIndex; j++) {
+            var page = getDataFromLocalStorage(mergedList[j][1]).pages[mergedList[j][0]];
+            var card = createCard(page);
+            if (mergedList[j][3] == null) {
+                card.addClass('glowBGnoBlack');
+            } else {
+                card.css("background-color", mergedList[j][3]);
+            }
+            tabContent.append(card);
+        }
+
+        // Append the tab content to the tabs container
+        tabsContainer.append(tabContent);
+    }
+
+    // Append the tabs container to the data container
+    $("#dataContainer").append(tabsContainer);
+
+    // Create tab navigation buttons
+    createTabNavigation(numTabs);
+}

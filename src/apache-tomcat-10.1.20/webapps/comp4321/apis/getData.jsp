@@ -11,13 +11,29 @@
 
 <%
     String input = request.getParameter("input").trim();
-    
+
     // case to handle null or empty input
     if (input == null || input.isEmpty()) {
         // add the JSON output for empty input (sortedPages and pages)
         out.print("{\"sortedPages\":[],\"pages\":{}}");
         return;
     }
+
+    String jsonString = request.getParameter("pageIDFilter");
+    String filterLen = request.getParameter("filterLen").trim();
+    Set<Integer> pageIDFilterSet = new HashSet<Integer>();
+    String[] stringArray = new String[0];
+    //System.out.println(filterLen);
+    //System.out.println(filterLen.equals("0"));
+    if (!filterLen.equals("0")) {
+        stringArray = jsonString.replace("[", "").replace("]", "").split(",");
+        for (String str : stringArray) {
+            pageIDFilterSet.add(Integer.parseInt(str.trim()));
+        }
+    }
+    //System.out.println(stringArray);
+    //System.out.println(pageIDFilterSet);
+    //System.out.println(pageIDFilterSet.size());
 
     //Here is the part used for StopStem
     String stopWord = getServletContext().getRealPath("/WEB-INF/stopwords.txt");
@@ -87,7 +103,6 @@
     ngrams.addAll(one_gram);
     ngrams.addAll(two_gram);
     ngrams.addAll(three_gram);
-
 
     // here is the part for database
     String dbPath = getServletContext().getRealPath("/WEB-INF/database/database");
@@ -237,7 +252,7 @@
     for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
         int pageID = entry.getKey();
         String value = (String) PageInfo.get(Integer.toString(pageID));
-        if (value != null) {
+        if (value != null && (filterLen.equals("0") || pageIDFilterSet.contains(pageID))) {
             PageInfos.put(pageID, value);
             count++;
             if (count == 50) {
@@ -258,11 +273,13 @@
 
     // output the sorted pages (pageID only)
     for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
-        count_page++;
-        if (count_page > 50) {
-            break;
+        if (filterLen.equals("0") || pageIDFilterSet.contains(entry.getKey())) {
+            count_page++;
+            if (count_page > 50) {
+                break;
+            }
+            json.append(entry.getKey() + ",");
         }
-        json.append(entry.getKey() + ",");
     }
 
     // Remove the last comma
@@ -282,6 +299,8 @@
     }
 
     json.append("\"pages\": {");
+
+    //System.out.println(PageInfos.entrySet());
 
     // the output will use information from different databases (PageInfo, PageChild, BodyWordMapping)
     for (Map.Entry<Integer, String> entry : PageInfos.entrySet()) {
