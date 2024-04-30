@@ -1,3 +1,83 @@
+$(document).ready(function () {
+    $("#searchForm").submit(function (event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+        var input = $("#searchInput").val();
+        // Call your function or perform any other actions here
+        let pageIDFilter = JSON.stringify(selectedPageIDList);
+        console.log(pageIDFilter);
+        console.log(selectedPageIDList.length);
+        getPages(input, pageIDFilter, selectedPageIDList.length); // Call your function to fetch data
+        resetSelectedPageID();
+        resetBaseMergedList();
+
+        addORToSearchSequence();
+        addSearchToSearchSequence(input);
+        displaySearchSequence();
+        resetSearchSequence();
+    });
+    $("#removeLocalStorageButton").click(function() {
+        // Clear the local storage
+        localStorage.clear();
+
+        // Optional: Update the UI or perform any other actions after removing the items
+        console.log("Local storage cleared!");
+
+        // Optional: Refresh the page or update any relevant UI elements
+        location.reload();
+        resetSelectedPageID();
+        resetBaseMergedList();
+        updateUI();
+
+        resetSearchSequence();
+        displaySearchSequence();
+    });
+    $("#UnselectButton").click(function() {
+        // Unselect all checkboxes
+        $("input[type='checkbox']").prop("checked", false);
+        
+        // Reload the page
+        location.reload();
+        resetSelectedPageID();
+        resetBaseMergedList();
+
+        resetSearchSequence();
+        displaySearchSequence();
+    });
+    // init filter
+    createChecklistForLocalStorageKeys();
+});
+
+function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
+    $.ajax({
+        url: "../comp4321/apis/getData.jsp", // Endpoint URL to fetch data
+        data: { input: input , pageIDFilter: pageIDFilter, filterLen: filterLen}, // Data to be sent to the server
+        type: "GET", // HTTP method
+        dataType: "json", // Data type expected from the server
+        success: function (data) {
+            // Handle successful response
+            // Process the data and update the UI as needed
+            // console.log(typeof data);
+            updateUI(data, useANDFlag); //in utils.js
+            if (!useANDFlag) {
+                storeDataInLocalStorage(input, data); // Store the data in local storage
+                createChecklistForLocalStorageKeys();
+            } else {
+                selectedPageIDList = data.sortedPages;
+                basePageIDSet = new Set(data.sortedPages);
+                createChecklistForLocalStorageKeys(true);
+                addToMergeList(input, data);
+                //console.log(baseMergedList);
+                console.log(basePageIDSet);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle error response
+            console.error(xhr.responseText); // Log the error message   
+        }
+    });
+}
+
 let selectedPageIDList = [];
 
 let selectedPageID = new Set();
@@ -80,86 +160,6 @@ function addANDToSearchSequence(input) {
 
 function resetSearchSequence() {
     SearchSequence = [];
-}
-
-$(document).ready(function () {
-    $("#searchForm").submit(function (event) {
-        // Prevent the default form submission behavior
-        event.preventDefault();
-        var input = $("#searchInput").val();
-        // Call your function or perform any other actions here
-        let pageIDFilter = JSON.stringify(selectedPageIDList);
-        console.log(pageIDFilter);
-        console.log(selectedPageIDList.length);
-        getPages(input, pageIDFilter, selectedPageIDList.length); // Call your function to fetch data
-        resetSelectedPageID();
-        resetBaseMergedList();
-
-        addORToSearchSequence();
-        addSearchToSearchSequence(input);
-        displaySearchSequence();
-        resetSearchSequence();
-    });
-    $("#removeLocalStorageButton").click(function() {
-        // Clear the local storage
-        localStorage.clear();
-
-        // Optional: Update the UI or perform any other actions after removing the items
-        console.log("Local storage cleared!");
-
-        // Optional: Refresh the page or update any relevant UI elements
-        location.reload();
-        resetSelectedPageID();
-        resetBaseMergedList();
-        updateUI();
-
-        resetSearchSequence();
-        displaySearchSequence();
-    });
-    $("#UnselectButton").click(function() {
-        // Unselect all checkboxes
-        $("input[type='checkbox']").prop("checked", false);
-        
-        // Reload the page
-        location.reload();
-        resetSelectedPageID();
-        resetBaseMergedList();
-
-        resetSearchSequence();
-        displaySearchSequence();
-    });
-    // init filter
-    createChecklistForLocalStorageKeys();
-});
-
-function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
-    $.ajax({
-        url: "../comp4321/apis/getData.jsp", // Endpoint URL to fetch data
-        data: { input: input , pageIDFilter: pageIDFilter, filterLen: filterLen}, // Data to be sent to the server
-        type: "GET", // HTTP method
-        dataType: "json", // Data type expected from the server
-        success: function (data) {
-            // Handle successful response
-            // Process the data and update the UI as needed
-            // console.log(typeof data);
-            updateUI(data, useANDFlag); //in utils.js
-            if (!useANDFlag) {
-                storeDataInLocalStorage(input, data); // Store the data in local storage
-                createChecklistForLocalStorageKeys();
-            } else {
-                selectedPageIDList = data.sortedPages;
-                basePageIDSet = new Set(data.sortedPages);
-                createChecklistForLocalStorageKeys(true);
-                addToMergeList(input, data);
-                //console.log(baseMergedList);
-                console.log(basePageIDSet);
-            }
-        },
-        error: function (xhr, status, error) {
-            // Handle error response
-            console.error(xhr.responseText); // Log the error message   
-        }
-    });
 }
 
 function reloadHistoryInputs(){
