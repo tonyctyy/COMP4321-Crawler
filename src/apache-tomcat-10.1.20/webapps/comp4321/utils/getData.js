@@ -1,12 +1,15 @@
+let usefreq = true;
+
 $(document).ready(function () {
     $("#searchForm").submit(function (event) {
         // Prevent the default form submission behavior
         event.preventDefault();
         var input = $("#searchInput").val();
+        //console.log(input);
         // Call your function or perform any other actions here
+        removeKeywordHighlight();
+
         let pageIDFilter = JSON.stringify(selectedPageIDList);
-        console.log(pageIDFilter);
-        console.log(selectedPageIDList.length);
         getPages(input, pageIDFilter, selectedPageIDList.length); // Call your function to fetch data
         resetSelectedPageID();
         resetBaseMergedList();
@@ -44,11 +47,21 @@ $(document).ready(function () {
         resetSearchSequence();
         displaySearchSequence();
     });
+    $("#maxKeyword").on("keypress", function (event) {
+        if (event.which === 13 || event.keyCode === 13) {
+            event.preventDefault();
+            var input = $(this).val();
+            getKeyword(input, usefreq);
+        }
+    });
+    getKeyword();
     // init filter
     createChecklistForLocalStorageKeys();
 });
 
 function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
+    // console.log("Filter: " + pageIDFilter);
+    // console.log("Filter Length: " + filterLen);
     $.ajax({
         url: "../comp4321/apis/getData.jsp", // Endpoint URL to fetch data
         data: { input: input , pageIDFilter: pageIDFilter, filterLen: filterLen}, // Data to be sent to the server
@@ -78,6 +91,49 @@ function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
     });
 }
 
+function getKeyword(numKeyword = 10, freq = true) {
+    console.log(numKeyword);
+    console.log(freq);
+    $.ajax({
+        url: "../comp4321/apis/getStemmedWord.jsp", // Endpoint URL to fetch data
+        data: { numKeyword: numKeyword , freq: freq },
+        type: "GET",
+        dataType: "json", 
+        success: function (result) {
+            // Handle successful response
+            // Process the data and update the UI as needed
+            // console.log(typeof result);
+            console.log(result);
+
+            // Extract the "Test" array from the object
+            var keywords = result.keywords;
+
+            //console.log(keywords);
+
+            // Create a map to store key-value pairs
+            var map = new Map();
+
+            // Iterate over the array and populate the map
+            for (var i = 0; i < keywords.length; i++) {
+                var entry = keywords[i];
+                var separatorIndex = entry.indexOf(':');
+                var key = entry.slice(0, separatorIndex).trim();
+                var value = entry.slice(separatorIndex + 1).trim();
+                map.set(key, value);
+            }
+
+            // Use the map as needed
+            //console.log(map);
+
+            createKeywordTable(map);
+        },
+        error: function (xhr, status, error) {
+            // Handle error response
+            console.error(xhr.responseText); // Log the error message   
+        }
+    });
+}
+
 let selectedPageIDList = [];
 
 let selectedPageID = new Set();
@@ -89,6 +145,32 @@ let selectedInputSet = new Set();
 let baseMergedList = [];
 
 let SearchSequence = [];
+
+function toggleValues() {
+    var toggleHeader = document.getElementById("toggleHeader");
+    
+    if (usefreq) {
+        usefreq = false;
+        toggleHeader.innerHTML = "Highest TFIDF";   
+    } else {
+        usefreq = true;
+        toggleHeader.innerHTML = "Highest Frequency";    
+    }
+
+    const catElement = $("#toggleHeaderParent");
+
+    if (catElement.hasClass('glowBoxBlue')) {
+        catElement.removeClass('glowBoxBlue');
+        catElement.addClass('glowBoxGreen');
+    } else {
+        catElement.removeClass('glowBoxGreen');
+        catElement.addClass('glowBoxBlue');
+    }
+
+    getKeyword($("#maxKeyword").val(), usefreq);
+
+    //console.log(toggleValue);
+  }
 
 function resetBasePageIDSet() {
     basePageIDSet = new Set();
@@ -121,6 +203,7 @@ function displaySearchSequence() {
 }
 
 function addBrackets() {
+    if (SearchSequence.length == 0) return;
     SearchSequence.unshift("("); // Add opening parentheses at the beginning
     SearchSequence.push(")"); // Add closing parentheses at the end
 }
@@ -223,6 +306,53 @@ function getDataFromLocalStorage(input) {
     }
 }
 
+function removeKeywordHighlight() {
+    const keywordBox = $(".keywordsTable").find("input[type='checkbox']");
+    keywordBox.parent().parent().removeClass('glowBG');
+    keywordBox.select(false);
+    keywordBox.prop("checked", false);
+}
+
+function createKeywordTable(map) {
+    const keywordsTable = $(".keywordsTable");
+
+    keywordsTable.empty();
+
+    keywordsTable.off("change");
+
+    // Retrieve all keys from local storage
+    const keys = Array.from(map.keys());
+
+    // Create and append checkboxes for each key
+    keys.forEach(key => {
+        const checkbox = $("<input type='checkbox'>").attr("name", key);
+        const span = $("<span></span>").text(key + ": " + map.get(key));
+        const label = $("<label></label>").append(checkbox, span);
+        const div = $("<div></div>").append(label.css("cursor", "pointer"));
+
+        div.addClass("cat").addClass('glow');
+        checkbox.prop("checked", false);
+        keywordsTable.append(div);
+    });
+
+    keywordsTable.on("click", "input[type='checkbox']", function() {
+        keywordsTable.find("input[type='checkbox']").not(this).parent().parent().removeClass('glowBG');
+        keywordsTable.find("input[type='checkbox']").not(this).select(false);
+        keywordsTable.find("input[type='checkbox']").not(this).prop("checked", false);
+        $(this).parent().parent().addClass('glowBG');
+        const key = $(this).attr("name");
+        let pageIDFilter = JSON.stringify(selectedPageIDList);
+        getPages(key, pageIDFilter, selectedPageIDList.length); 
+        resetSelectedPageID();
+        resetBaseMergedList();
+
+        addORToSearchSequence();
+        addSearchToSearchSequence(key);
+        displaySearchSequence();
+        resetSearchSequence();
+    })
+}
+
 function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
     // Get the checklist element using jQuery
     const checklist = $("#localStorageKeys .historyInputs");
@@ -242,7 +372,7 @@ function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
         const checkbox = $("<input type='checkbox'>").attr("name", key);
         const span = $("<span></span>").text(key);
         const label = $("<label></label>").append(checkbox, span);
-        const div = $("<div></div>").append(label);
+        const div = $("<div></div>").append(label.css("cursor", "pointer"));
         const button = $("<button></button>").html("&#10006;").addClass("removeHitorybutton").css({
             "top": "50%",
           }).click(function() {
@@ -262,8 +392,13 @@ function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
     colorMap.set("defualt", defaultColor);
     selectedInputSet = new Set();
 
+    checklist.off("change");
+
     // Add event listener to handle checkbox change event
     checklist.on("change", "input[type='checkbox']", function() {
+        removeKeywordHighlight();
+
+        $("#num-results").empty();
         const isChecked = $(this).is(":checked");
         const key = $(this).attr("name");
         resetSelectedPageID();
@@ -284,7 +419,7 @@ function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
             $(this).parent().parent().css("background-color", defaultColor);
         }
         // Print all the elements in the set
-        console.log(selectedInputSet);
+        //console.log(selectedInputSet);
         const myArray = Array.from(selectedInputSet);
         const mergedList = [...baseMergedList];
         myArray.forEach(element => {  
@@ -299,22 +434,26 @@ function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
         selectedPageIDList = Array.from(selectedPageID);
         mergedList.sort((a, b) => b[2] - a[2]);
         console.log(mergedList);
-        console.log(basePageIDSet);
-        console.log(selectedPageIDList);
+        // console.log(basePageIDSet);
+        // console.log(selectedPageIDList);
         updateMergedUI(mergedList);
     });
 
     if (!ORonlyFlag) {
+        checklistForAND.off("change");
         checklistForAND.on("change", "input[type='checkbox']", function() {
             $(this).parent().parent().addClass('glowBG');
             $(this).prop("disabled", true);
             const key = $(this).attr("name");
             let pageIDFilter = JSON.stringify(selectedPageIDList);
-            getPages(key, pageIDFilter, selectedPageIDList.length, true); 
+            console.log(SearchSequence);
             addORToSearchSequence();
             addBrackets();
             addANDToSearchSequence(key);
             displaySearchSequence();
+
+            removeKeywordHighlight();
+            getPages(key, pageIDFilter, selectedPageIDList.length, true); 
         })
     }
 }

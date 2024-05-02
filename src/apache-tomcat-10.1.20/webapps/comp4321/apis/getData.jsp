@@ -246,19 +246,34 @@
     List<Map.Entry<Integer, Double>> sortedCosineSimilarity = new ArrayList<>(cosineSimilarity.entrySet());
     sortedCosineSimilarity.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
+    List<Map.Entry<Integer, Double>> first50SortedCosineSimilarity = sortedCosineSimilarity.subList(0, Math.min(50, sortedCosineSimilarity.size()));
+
+    System.out.println(first50SortedCosineSimilarity.size());
+
     // get the top 50 page info from PageInfo
     int count = 0;
     Map<Integer, String> PageInfos = new HashMap<>();
-    for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
+    for (Map.Entry<Integer, Double> entry : first50SortedCosineSimilarity) {
         int pageID = entry.getKey();
         String value = (String) PageInfo.get(Integer.toString(pageID));
-        if (value != null && (filterLen.equals("0") || pageIDFilterSet.contains(pageID))) {
-            PageInfos.put(pageID, value);
-            count++;
-            if (count == 50) {
-                break;
-            }
+        if (value != null) {
+            if (filterLen.equals("0") || pageIDFilterSet.contains(pageID)) {
+                PageInfos.put(pageID, value);
+                count++;
+            }   
+        } else {
+            // handle value == null case
+            String errorMsg = "Error: Unable to get content from PageID: " + pageID;
+            System.out.println(errorMsg);
+            out.print("{\"sortedPages\":[],\"pages\":{}}");
+            return;
         }
+    }
+
+    if (count == 0) {
+        // return empty for no match
+        out.print("{\"sortedPages\":[],\"pages\":{}}");
+        return;
     }
 
     // output the top 50 pages in JSON format
@@ -267,18 +282,13 @@
 
     // the json output will have two parts: sorted pages and details of each page. the sorted pages will be sorted by the cosine similarity score and the details of each page will include the title, url, last modification date, size of the page, top 5 key words, child pages (title and url) and the similarity score
 
-    int count_page = 0;
-
     json.append("\"sortedPages\": [");
 
     // output the sorted pages (pageID only)
-    for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
-        if (filterLen.equals("0") || pageIDFilterSet.contains(entry.getKey())) {
-            count_page++;
-            if (count_page > 50) {
-                break;
-            }
-            json.append(entry.getKey() + ",");
+    for (Map.Entry<Integer, Double> entry : first50SortedCosineSimilarity) {
+        int pageID = entry.getKey();
+        if (filterLen.equals("0") || pageIDFilterSet.contains(pageID)) {
+            json.append(pageID + ",");
         }
     }
 

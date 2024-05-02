@@ -6,9 +6,9 @@
         <section id="searchButtonBar">
             <button type="submit">Search</button>
         </section>
-        <div id="num-results" class="num-results"></div>
+        <!-- <div id="num-results" class="num-results"></div> -->
         <hr style="margin-bottom: 2rem; margin-top: 1rem">
-        <label for="SearchSequenceBar" style="margin-top: 0;">Search Sequence: <span style="color: gray; font-style: italic;" class="SearchSequence"></span></label>
+        <label style="margin-top: 0;">Search Sequence: <span style="color: gray; font-style: italic;" class="SearchSequence"></span></label>
     </form>
 </section>
 
@@ -16,7 +16,7 @@
     <button type="button" class="collapsible" style="text-align: center;">&#9660; Filter Result from Query History &#9660;</button>
     <form class="historyInputsContainer" style="display: block;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-            <label for="searchHistInput">OR Operation:</label>
+            <label>OR Operation:</label>
             <div>
                 <button id="UnselectButton" type="button" style="background-color: green; border-color: greenyellow;">Unselect All</button>
                 <button id="removeLocalStorageButton" type="button" style="background-color: red; border-color: brown;">Remove All</button>
@@ -31,10 +31,28 @@
         <div class="historyInputs">
         </div>
         <hr style="margin-bottom: 2rem">
-        <label for="ANDOperation" style="margin-top: 0;">AND Operation: <span style="color: red; font-style: italic;">You can NOT undo</span></label>
+        <label style="margin-top: 0;">AND Operation: <span style="color: red; font-style: italic;">You can NOT undo</span></label>
         <div class="ANDInputs">
         </div>
     </form>
+</section>
+
+<section id="keywordsTableSection">
+  <button type="button" class="collapsible" style="text-align: center;">&#9660; Keywords Selection &#9660;</button>
+  <form class="keywordsTableContainer" style="display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <label>Keywords Table:</label>
+      <div style="display: flex; align-items: center;">
+        <input type="text" id="maxKeyword" inputmode="numeric" pattern="[1-9]\d*" placeholder="No. Keyword" value="10">
+        <div id="toggleHeaderParent" class="cat glowBoxBlue">
+          <span id="toggleHeader" onclick="toggleValues()">Highest Frequency</span>
+        </div>
+      </div>
+    </div> 
+    <div class="keywordsTable">
+    </div>
+  </form>
+  <div id="num-results" class="num-results"></div>
 </section>
 
 <style>

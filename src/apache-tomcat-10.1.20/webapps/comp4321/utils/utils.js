@@ -84,6 +84,29 @@ function createCard(page) {
     keyWordsString = keyWordsString.slice(0, -2);
     rightColumn.append("<p>" + keyWordsString + "</p>");
 
+    // Add Get Similar Pages Button
+    var button = $("<button>Get Similar Pages</button>");
+    rightColumn.append(button);
+
+    button.on("click", function() {
+        let input = "";
+        for (var j = 0; j < 5 && j < keyWordsArray.length; j++) {
+            console.log(keyWordsArray[j][0]);
+            input += keyWordsArray[j][0] +" ";
+        }
+        //console.log(input);
+        resetSelectedPageID();
+        resetBaseMergedList();
+        resetSearchSequence();
+
+        let pageIDFilter = JSON.stringify(selectedPageIDList);
+        getPages(input, pageIDFilter, selectedPageIDList.length);
+
+        addSearchToSearchSequence(input);
+        displaySearchSequence();
+        resetSearchSequence();
+    });
+
     // Add the parent link to the right column
     var parentPages = page.parentPages;
     // check if parentPage is null or undefined
@@ -201,12 +224,17 @@ function updateMergedUI(mergedList) {
 
         // Loop through the subset of results and create cards for each page
         for (var j = startIndex; j < endIndex; j++) {
+            // console.log(j);
+            // console.log(mergedList[j][1]);
+            // console.log(mergedList[j][0]);
             var page = getDataFromLocalStorage(mergedList[j][1]).pages[mergedList[j][0]];
+            // console.log(page);
             var card = createCard(page);
             if (mergedList[j][3] == null) {
                 card.addClass('glowBGnoBlack');
             } else {
                 card.css("background-color", mergedList[j][3]);
+                card.css("color", "#fff");
             }
             tabContent.append(card);
         }
