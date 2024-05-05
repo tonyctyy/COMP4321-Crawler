@@ -555,7 +555,7 @@ blockquote footer {
 .result-card {
     width: calc(100% - 20px); /* Adjust width as needed */
     margin-bottom: 20px; /* Adjust margin as needed */
-    border: 3px solid #555; /* Example border */
+    border: 3px solid #888; /* Example border */
     border-radius: 5px; /* Example border radius */
     padding: 10px; /* Example padding */
     box-sizing: border-box;
