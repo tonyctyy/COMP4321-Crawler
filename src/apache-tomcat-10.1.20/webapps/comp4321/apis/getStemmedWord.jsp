@@ -13,8 +13,8 @@
     Integer numKeyword = Integer.parseInt(request.getParameter("numKeyword"));
     Boolean useFreq = Boolean.parseBoolean(request.getParameter("freq").trim());
 
-    System.out.println(numKeyword);
-    System.out.println(useFreq);
+    //System.out.println(numKeyword);
+    //System.out.println(useFreq);
 
     // here is the part for database
     String dbPath = getServletContext().getRealPath("/WEB-INF/database/database");
@@ -123,7 +123,7 @@
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
 
-    System.out.println(json.toString());
+    //System.out.println(json.toString());
 
     // Write JSON data to response
     out.print(json.toString());

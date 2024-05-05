@@ -81,7 +81,7 @@ function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
                 createChecklistForLocalStorageKeys(true);
                 addToMergeList(input, data);
                 //console.log(baseMergedList);
-                console.log(basePageIDSet);
+                //console.log(basePageIDSet);
             }
         },
         error: function (xhr, status, error) {
@@ -92,8 +92,8 @@ function getPages(input, pageIDFilter, filterLen, useANDFlag = false) {
 }
 
 function getKeyword(numKeyword = 10, freq = true) {
-    console.log(numKeyword);
-    console.log(freq);
+    // console.log(numKeyword);
+    // console.log(freq);
     $.ajax({
         url: "../comp4321/apis/getStemmedWord.jsp", // Endpoint URL to fetch data
         data: { numKeyword: numKeyword , freq: freq },
@@ -103,7 +103,7 @@ function getKeyword(numKeyword = 10, freq = true) {
             // Handle successful response
             // Process the data and update the UI as needed
             // console.log(typeof result);
-            console.log(result);
+            //console.log(result);
 
             // Extract the "Test" array from the object
             var keywords = result.keywords;
@@ -446,7 +446,7 @@ function createChecklistForLocalStorageKeys(ORonlyFlag = false) {
             $(this).prop("disabled", true);
             const key = $(this).attr("name");
             let pageIDFilter = JSON.stringify(selectedPageIDList);
-            console.log(SearchSequence);
+            //console.log(SearchSequence);
             addORToSearchSequence();
             addBrackets();
             addANDToSearchSequence(key);

@@ -55,6 +55,7 @@ function updateUI(response, useANDFlag = false) {
 }
 
 function createCard(page) {
+    //console.log(page);
     // Create a card for the page
     var card = $("<div class='result-card'></div>");
 
@@ -91,7 +92,7 @@ function createCard(page) {
     button.on("click", function() {
         let input = "";
         for (var j = 0; j < 5 && j < keyWordsArray.length; j++) {
-            console.log(keyWordsArray[j][0]);
+            //console.log(keyWordsArray[j][0]);
             input += keyWordsArray[j][0] +" ";
         }
         //console.log(input);

@@ -248,7 +248,7 @@
 
     List<Map.Entry<Integer, Double>> first50SortedCosineSimilarity = sortedCosineSimilarity.subList(0, Math.min(50, sortedCosineSimilarity.size()));
 
-    System.out.println(first50SortedCosineSimilarity.size());
+    //System.out.println(first50SortedCosineSimilarity.size());
 
     // get the top 50 page info from PageInfo
     int count = 0;
@@ -339,6 +339,8 @@
         }
 
         // get the child pages from PageChild (it is the page id of the child pages separated by comma)
+        System.out.println("----------------------");
+        System.out.println(PageChild.get(pageID));
         String PageChildValue = (String) PageChild.get(pageID);
         // get the title and url of each child page
         Map<Integer, Map<String, String>> childPages = new HashMap<>();
@@ -356,6 +358,8 @@
             }
         }
 
+        System.out.println("----------------------");
+        System.out.println(PageParent.get(pageID));
         // get the title pages from PageParent (it is the page id of the parent page separated by comma)
         String PageParentValue = (String) PageParent.get(pageID);
         // get the title and url of each parent page
