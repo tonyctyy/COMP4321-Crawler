@@ -6,8 +6,86 @@
         <section id="searchButtonBar">
             <button type="submit">Search</button>
         </section>
-        <div id="num-results" class="num-results"></div>
+        <!-- <div id="num-results" class="num-results"></div> -->
+        <hr style="margin-bottom: 2rem; margin-top: 1rem">
+        <label style="margin-top: 0;">Search Sequence: <span style="color: gray; font-style: italic;" class="SearchSequence"></span></label>
     </form>
 </section>
 
+<section id="localStorageKeys">
+    <button type="button" class="collapsible" style="text-align: center;">&#9660; Filter Result from Query History &#9660;</button>
+    <form class="historyInputsContainer" style="display: block;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <label>OR Operation:</label>
+            <div>
+                <button id="UnselectButton" type="button" style="background-color: green; border-color: greenyellow;">Unselect All</button>
+                <button id="removeLocalStorageButton" type="button" style="background-color: red; border-color: brown;">Remove All</button>
+            </div>
+        </div>
+        <!-- <div class="inputContainer">
+            <span style="display: flex; width: 100%;">
+                <input type="text" id="searchHistInput" name="searchHistInput" style="margin-top: 10px; margin-right: 10px; margin-bottom: 10px;">
+                <button type="submit">Search</button>
+            </span>
+        </div> -->
+        <div class="historyInputs">
+        </div>
+        <hr style="margin-bottom: 2rem">
+        <label style="margin-top: 0;">AND Operation: <span style="color: red; font-style: italic;">You can NOT undo</span></label>
+        <div class="ANDInputs">
+        </div>
+    </form>
+</section>
 
+<section id="keywordsTableSection">
+  <button type="button" class="collapsible" style="text-align: center;">&#9660; Keywords Selection &#9660;</button>
+  <form class="keywordsTableContainer" style="display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <label>Keywords Table:</label>
+      <div style="display: flex; align-items: center;">
+        <input type="text" id="maxKeyword" inputmode="numeric" pattern="[1-9]\d*" placeholder="No. Keyword" value="10">
+        <div id="toggleHeaderParent" class="cat glowBoxBlue">
+          <span id="toggleHeader" onclick="toggleValues()">Highest Frequency</span>
+        </div>
+      </div>
+    </div> 
+    <div class="keywordsTable">
+    </div>
+  </form>
+  <div id="num-results" class="num-results"></div>
+</section>
+
+<style>
+    .collapsible {
+      background-color: #777;
+      color: white;
+      cursor: pointer;
+      padding: 18px;
+      width: 75%;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 15px;
+    }
+    
+    .active, .collapsible:hover {
+      background-color: #555;
+    }
+</style>
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    }
+</script>

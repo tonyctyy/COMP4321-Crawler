@@ -555,7 +555,7 @@ blockquote footer {
 .result-card {
     width: calc(100% - 20px); /* Adjust width as needed */
     margin-bottom: 20px; /* Adjust margin as needed */
-    border: 1px solid #ccc; /* Example border */
+    border: 3px solid #555; /* Example border */
     border-radius: 5px; /* Example border radius */
     padding: 10px; /* Example padding */
     box-sizing: border-box;
@@ -620,6 +620,218 @@ blockquote footer {
 }
 
 .num-results {
-    width: 100%;
-    
+    width: 70%;
+}
+
+
+/* This is to be able to center the content in the middle of the page; */
+.historyInputsContainer{
+    border: 1px solid var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow) var(--color-shadow);
+    display: block;
+    max-width: var(--width-card-wide);
+    min-width: var(--width-card);
+    padding: 1.5rem;
+    text-align: var(--justify-normal);
+    width: 70%;
+    margin: 10px;
+}
+
+.historyInputs div label input {margin-right: 10px;}
+
+.cat{
+  margin: 4px;
+  background-color: #808080;
+  border-radius: 4px;
+  border-radius: 1px solid;
+  overflow: hidden;
+  float: left;
+}
+
+.cat label {
+  float: left; line-height: 3.0em;
+  width: auto; height: 3em;
+  min-width: 8.0em;
+  white-space: normal;
+}
+
+.cat label span {
+  text-align: center;
+  padding: 3px 0;
+  display: block;
+  white-space: normal;
+  padding-left: 1em;
+  padding-right: 1em;
+  text-overflow: ellipsis;
+}
+
+.cat button {
+    background-color: transparent;
+    border-color: transparent;
+    text-align: center;
+    padding: 3px 0;
+    display: block;
+    white-space: normal;
+    padding-left: 1em;
+    padding-right: 1em;
+    text-overflow: ellipsis;
+}
+
+.cat label input {
+  position: absolute;
+  display: none;
+  color: #fff !important;
+}
+/* selects all of the text within the input element and changes the color of the text */
+.cat label input + span{color: #fff;}
+
+
+/* This will declare how a selected input will look giving generic properties */
+.cat input:checked + span {
+    color: #ffffff;
+    text-shadow: 0 0  6px rgba(0, 0, 0, 0.8);
+}
+
+.inputContainer {
+    display: flex;
+    align-items: center;
+}
+
+.inputContainer input {
+    margin-right: 10px;
+}
+
+.glow input:checked + span{
+    color: #fff;
+    text-align: center;
+    animation: glow 3s ease-in-out infinite alternate;
+}
+  
+/* * {
+    animation: glowMaster 3s ease-in-out infinite alternate;
+} */
+
+.glowBG {
+    animation: glowShadow 3s ease-in-out infinite alternate;
+    background-color: #000;
+}
+
+.glowBGnoBlack {
+    animation: glowShadow 3s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgb(255, 0, 0), 0 0 20px rgb(255, 0, 0), 0 0 30px rgb(255, 0, 0);
+    }
+
+    33% {
+        text-shadow: 0 0 10px rgb(0, 255, 0), 0 0 20px rgb(0, 255, 0), 0 0 30px rgb(0, 255, 0);
+    }
+
+    66% {
+        text-shadow: 0 0 10px rgb(0, 0, 255), 0 0 20px rgb(0, 0, 255), 0 0 30px rgb(0, 0, 255);
+    }
+}
+
+@-webkit-keyframes glowShadow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgb(255, 0, 0), 0 0 20px rgb(255, 0, 0), 0 0 30px rgb(255, 0, 0);
+    }
+
+    33% {
+        box-shadow: 0 0 10px rgb(0, 255, 0), 0 0 20px rgb(0, 255, 0), 0 0 30px rgb(0, 255, 0);
+    }
+
+    66% {
+        box-shadow: 0 0 10px rgb(0, 0, 255), 0 0 20px rgb(0, 0, 255), 0 0 30px rgb(0, 0, 255);
+    }
+}
+
+@-webkit-keyframes glowMaster {
+    0%, 100% {
+        box-shadow: 0 0 10px rgb(255, 0, 0), 0 0 20px rgb(255, 0, 0), 0 0 30px rgb(255, 0, 0);
+        text-shadow: 0 0 10px rgb(255, 0, 0), 0 0 20px rgb(255, 0, 0), 0 0 30px rgb(255, 0, 0);
+    }
+    33% {
+        box-shadow: 0 0 10px rgb(0, 255, 0), 0 0 20px rgb(0, 255, 0), 0 0 30px rgb(0, 255, 0);
+        text-shadow: 0 0 10px rgb(0, 255, 0), 0 0 20px rgb(0, 255, 0), 0 0 30px rgb(0, 255, 0);
+
+    }
+
+    66% {
+        box-shadow: 0 0 10px rgb(0, 0, 255), 0 0 20px rgb(0, 0, 255), 0 0 30px rgb(0, 0, 255);
+        text-shadow: 0 0 10px rgb(0, 0, 255), 0 0 20px rgb(0, 0, 255), 0 0 30px rgb(0, 0, 255);
+    }
+}
+
+.glowBoxBlue {
+    color: #fff;
+    text-align: center;
+    -webkit-animation: glowBoxBlue 1s ease-in-out infinite alternate;
+    -moz-animation: glowBoxBlue 1s ease-in-out infinite alternate;
+    animation: glowBoxBlue 1s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowBoxBlue {
+    from {
+        box-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #007bff, 0 0 8px #007bff, 0 0 10px #007bff, 0 0 12px #007bff, 0 0 14px #007bff;
+    }
+    to {
+        box-shadow: 0 0 2px #fff, 0 0 4px #4da6ff, 0 0 6px #4da6ff, 0 0 8px #4da6ff, 0 0 10px #4da6ff, 0 0 12px #4da6ff, 0 0 14px #4da6ff;
+    }
+}
+
+.glowBoxGreen {
+    color: #fff;
+    text-align: center;
+    -webkit-animation: glowBoxGreen 1s ease-in-out infinite alternate;
+    -moz-animation: glowBoxGreen 1s ease-in-out infinite alternate;
+    animation: glowBoxGreen 1s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowBoxGreen {
+    from {
+        box-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #00cc00, 0 0 8px #00cc00, 0 0 10px #00cc00, 0 0 12px #00cc00, 0 0 14px #00cc00;
+    }
+    to {
+        box-shadow: 0 0 2px #fff, 0 0 4px #00ff00, 0 0 6px #00ff00, 0 0 8px #00ff00, 0 0 10px #00ff00, 0 0 12px #00ff00, 0 0 14px #00ff00;
+    }
+}
+
+#toggleHeader {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+#toggleHeaderParent {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    line-height: 1.5em;
+    min-width: 10.0em;
+    min-height: 3.0em;
+    width: auto;
+    height: auto;
+    white-space: normal;
+    background-color: orange;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+#maxKeyword {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    line-height: 1.5em;
+    min-height: 2.0em;
+    width: 8.0em;
+    height: auto;
+    margin: 4px;
+    white-space: normal;
+    text-overflow: ellipsis;
+    font-weight: bold;
 }

@@ -11,13 +11,29 @@
 
 <%
     String input = request.getParameter("input").trim();
-    
+
     // case to handle null or empty input
     if (input == null || input.isEmpty()) {
         // add the JSON output for empty input (sortedPages and pages)
         out.print("{\"sortedPages\":[],\"pages\":{}}");
         return;
     }
+
+    String jsonString = request.getParameter("pageIDFilter");
+    String filterLen = request.getParameter("filterLen").trim();
+    Set<Integer> pageIDFilterSet = new HashSet<Integer>();
+    String[] stringArray = new String[0];
+    //System.out.println(filterLen);
+    //System.out.println(filterLen.equals("0"));
+    if (!filterLen.equals("0")) {
+        stringArray = jsonString.replace("[", "").replace("]", "").split(",");
+        for (String str : stringArray) {
+            pageIDFilterSet.add(Integer.parseInt(str.trim()));
+        }
+    }
+    //System.out.println(stringArray);
+    //System.out.println(pageIDFilterSet);
+    //System.out.println(pageIDFilterSet.size());
 
     //Here is the part used for StopStem
     String stopWord = getServletContext().getRealPath("/WEB-INF/stopwords.txt");
@@ -88,7 +104,6 @@
     ngrams.addAll(two_gram);
     ngrams.addAll(three_gram);
 
-
     // here is the part for database
     String dbPath = getServletContext().getRealPath("/WEB-INF/database/database");
 
@@ -114,7 +129,18 @@
 
     long PageParentID = recman.getNamedObject("PageParent");
     HTree PageParent = HTree.load(recman, PageParentID);
+    
+System.out.print("???????????????????????????");
+FastIterator elements = PageChild.keys();
 
+Object val;
+int countccc = 0;
+while ((val = elements.next()) != null) {
+    System.out.println(val);
+    countccc++;
+}
+
+System.out.println("Length of keys list: " + countccc);
 
     // get the list of word id from the n-grams and store them as Map<Integer, Double> for the query where the key is the word id and the value is 1.0
     Map<Integer, Double> query = new HashMap<>();
@@ -231,19 +257,34 @@
     List<Map.Entry<Integer, Double>> sortedCosineSimilarity = new ArrayList<>(cosineSimilarity.entrySet());
     sortedCosineSimilarity.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
+    List<Map.Entry<Integer, Double>> first50SortedCosineSimilarity = sortedCosineSimilarity.subList(0, Math.min(50, sortedCosineSimilarity.size()));
+
+    //System.out.println(first50SortedCosineSimilarity.size());
+
     // get the top 50 page info from PageInfo
     int count = 0;
     Map<Integer, String> PageInfos = new HashMap<>();
-    for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
+    for (Map.Entry<Integer, Double> entry : first50SortedCosineSimilarity) {
         int pageID = entry.getKey();
         String value = (String) PageInfo.get(Integer.toString(pageID));
         if (value != null) {
-            PageInfos.put(pageID, value);
-            count++;
-            if (count == 50) {
-                break;
-            }
+            if (filterLen.equals("0") || pageIDFilterSet.contains(pageID)) {
+                PageInfos.put(pageID, value);
+                count++;
+            }   
+        } else {
+            // handle value == null case
+            String errorMsg = "Error: Unable to get content from PageID: " + pageID;
+            System.out.println(errorMsg);
+            out.print("{\"sortedPages\":[],\"pages\":{}}");
+            return;
         }
+    }
+
+    if (count == 0) {
+        // return empty for no match
+        out.print("{\"sortedPages\":[],\"pages\":{}}");
+        return;
     }
 
     // output the top 50 pages in JSON format
@@ -252,17 +293,14 @@
 
     // the json output will have two parts: sorted pages and details of each page. the sorted pages will be sorted by the cosine similarity score and the details of each page will include the title, url, last modification date, size of the page, top 5 key words, child pages (title and url) and the similarity score
 
-    int count_page = 0;
-
     json.append("\"sortedPages\": [");
 
     // output the sorted pages (pageID only)
-    for (Map.Entry<Integer, Double> entry : sortedCosineSimilarity) {
-        count_page++;
-        if (count_page > 50) {
-            break;
+    for (Map.Entry<Integer, Double> entry : first50SortedCosineSimilarity) {
+        int pageID = entry.getKey();
+        if (filterLen.equals("0") || pageIDFilterSet.contains(pageID)) {
+            json.append(pageID + ",");
         }
-        json.append(entry.getKey() + ",");
     }
 
     // Remove the last comma
@@ -282,6 +320,8 @@
     }
 
     json.append("\"pages\": {");
+
+    //System.out.println(PageInfos.entrySet());
 
     // the output will use information from different databases (PageInfo, PageChild, BodyWordMapping)
     for (Map.Entry<Integer, String> entry : PageInfos.entrySet()) {
@@ -310,6 +350,8 @@
         }
 
         // get the child pages from PageChild (it is the page id of the child pages separated by comma)
+        // System.out.println("Child----------------------");
+        // System.out.println(PageChild.get(pageID));
         String PageChildValue = (String) PageChild.get(pageID);
         // get the title and url of each child page
         Map<Integer, Map<String, String>> childPages = new HashMap<>();
@@ -327,6 +369,8 @@
             }
         }
 
+        // System.out.println("Parent----------------------");
+        // System.out.println(PageParent.get(pageID));
         // get the title pages from PageParent (it is the page id of the parent page separated by comma)
         String PageParentValue = (String) PageParent.get(pageID);
         // get the title and url of each parent page
