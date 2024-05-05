@@ -85,29 +85,6 @@ function createCard(page) {
     keyWordsString = keyWordsString.slice(0, -2);
     rightColumn.append("<p>" + keyWordsString + "</p>");
 
-    // Add Get Similar Pages Button
-    var button = $("<button>Get Similar Pages</button>");
-    rightColumn.append(button);
-
-    button.on("click", function() {
-        let input = "";
-        for (var j = 0; j < 5 && j < keyWordsArray.length; j++) {
-            //console.log(keyWordsArray[j][0]);
-            input += keyWordsArray[j][0] +" ";
-        }
-        //console.log(input);
-        resetSelectedPageID();
-        resetBaseMergedList();
-        resetSearchSequence();
-
-        let pageIDFilter = JSON.stringify(selectedPageIDList);
-        getPages(input, pageIDFilter, selectedPageIDList.length);
-
-        addSearchToSearchSequence(input);
-        displaySearchSequence();
-        resetSearchSequence();
-    });
-
     // Add the parent link to the right column
     var parentPages = page.parentPages;
     // check if parentPage is null or undefined
@@ -144,6 +121,29 @@ function createCard(page) {
             rightColumn.append(showMoreBtn);
         }
     }
+
+    // Add Get Similar Pages Button
+    var button = $("<button>Get Similar Pages</button>");
+    rightColumn.append(button);
+
+    button.on("click", function() {
+        let input = "";
+        for (var j = 0; j < 5 && j < keyWordsArray.length; j++) {
+            //console.log(keyWordsArray[j][0]);
+            input += keyWordsArray[j][0] +" ";
+        }
+        //console.log(input);
+        resetSelectedPageID();
+        resetBaseMergedList();
+        resetSearchSequence();
+
+        let pageIDFilter = JSON.stringify(selectedPageIDList);
+        getPages(input, pageIDFilter, selectedPageIDList.length);
+
+        addSearchToSearchSequence(input);
+        displaySearchSequence();
+        resetSearchSequence();
+    });
 
     // Append left and right columns to the card
     card.append(leftColumn);

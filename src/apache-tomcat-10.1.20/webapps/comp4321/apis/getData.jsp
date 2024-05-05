@@ -129,7 +129,18 @@
 
     long PageParentID = recman.getNamedObject("PageParent");
     HTree PageParent = HTree.load(recman, PageParentID);
+    
+System.out.print("???????????????????????????");
+FastIterator elements = PageChild.keys();
 
+Object val;
+int countccc = 0;
+while ((val = elements.next()) != null) {
+    System.out.println(val);
+    countccc++;
+}
+
+System.out.println("Length of keys list: " + countccc);
 
     // get the list of word id from the n-grams and store them as Map<Integer, Double> for the query where the key is the word id and the value is 1.0
     Map<Integer, Double> query = new HashMap<>();
@@ -339,8 +350,8 @@
         }
 
         // get the child pages from PageChild (it is the page id of the child pages separated by comma)
-        System.out.println("----------------------");
-        System.out.println(PageChild.get(pageID));
+        // System.out.println("Child----------------------");
+        // System.out.println(PageChild.get(pageID));
         String PageChildValue = (String) PageChild.get(pageID);
         // get the title and url of each child page
         Map<Integer, Map<String, String>> childPages = new HashMap<>();
@@ -358,8 +369,8 @@
             }
         }
 
-        System.out.println("----------------------");
-        System.out.println(PageParent.get(pageID));
+        // System.out.println("Parent----------------------");
+        // System.out.println(PageParent.get(pageID));
         // get the title pages from PageParent (it is the page id of the parent page separated by comma)
         String PageParentValue = (String) PageParent.get(pageID);
         // get the title and url of each parent page
