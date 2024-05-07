@@ -32,6 +32,7 @@
 
     Map<String, Integer> frequencyMap = new HashMap<>();
     Map<String, Double> tfidfMap = new HashMap<>();
+    Map<String, Double> freqXtfidfMap = new HashMap<>();
 
     FastIterator WordMappingKeys = WordMapping.keys();
     String key;
@@ -44,12 +45,15 @@
 
         Integer frequency = 0;
         double tfidf = 0.0;
+        double freqXtfidf = 0.0;
+
         if (BodyValue != null) {
             String [] BodyValues = BodyValue.split(",");
             for (String val : BodyValues) {
                 String[] parts = val.split("\\|");
                 frequency += Integer.parseInt(parts[1]);
                 tfidf += Double.parseDouble(parts[2]);
+                freqXtfidf += Integer.parseInt(parts[1]) * Double.parseDouble(parts[2]);
             }
         }
         
@@ -59,11 +63,13 @@
                 String[] parts = val.split("\\|");
                 frequency += Integer.parseInt(parts[1]);
                 tfidf += Double.parseDouble(parts[2]);
+                freqXtfidf += Integer.parseInt(parts[1]) * Double.parseDouble(parts[2]);
             }
         }
         frequencyMap.put(key, frequency);
         tfidfMap.put(key, tfidf);
-        // System.out.print(frequencyMap.get(key) + " ");
+        freqXtfidfMap.put(key, freqXtfidf);
+        //System.out.println(key + ": " + frequencyMap.get(key));
         // System.out.println(tfidfMap.get(key));
     }
 
@@ -83,16 +89,22 @@
     Integer count = 0;
 
     if (useFreq) {
-        // Sort the frequencyMap by values in descending order
-        List<Map.Entry<String, Integer>> frequencyList = new ArrayList<>(frequencyMap.entrySet());
-        frequencyList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-        for (Map.Entry<String, Integer> entry : frequencyList) {
+        List<Map.Entry<String, Double>> freqXtfidfList = new ArrayList<>(freqXtfidfMap.entrySet());
+        freqXtfidfList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        //System.out.println(freqXtfidfList);
+
+        // // Sort the frequencyMap by values in descending order
+        // List<Map.Entry<String, Integer>> frequencyList = new ArrayList<>(frequencyMap.entrySet());
+        // frequencyList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        // //System.out.println(frequencyList);
+        for (Map.Entry<String, Double> entry : freqXtfidfList) {
             // System.out.println(entry.getKey() + ": " + entry.getValue());
             count++;
             if (count > numKeyword) {
                 break;
             }
-            json.append("\"").append(entry.getKey()).append(": ").append(entry.getValue()).append("\",");
+            String tempTxt = String.format("%.2f", entry.getValue()); 
+            json.append("\"").append(entry.getKey()).append(": ").append(tempTxt).append("\",");
         }
         // List<Map.Entry<String, Integer>> topFrequencyList = frequencyList.subList(0, Math.min(frequencyList.size(), numKeyword));
         // System.out.println(topFrequencyList);
@@ -106,7 +118,8 @@
             if (count > numKeyword) {
                 break;
             }
-            json.append("\"").append(entry.getKey()).append(": ").append(entry.getValue()).append("\",");
+            String tempTxt = String.format("%.2f", entry.getValue()); 
+            json.append("\"").append(entry.getKey()).append(": ").append(tempTxt).append("\",");
         }
         // List<Map.Entry<String, Double>> topTfidfList = tfidfList.subList(0, Math.min(tfidfList.size(), numKeyword));
         // System.out.println(topTfidfList);

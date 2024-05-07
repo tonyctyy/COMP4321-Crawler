@@ -54,7 +54,7 @@ function updateUI(response, useANDFlag = false) {
     createTabNavigation(numTabs);
 }
 
-function createCard(page) {
+function createCard(page, color) {
     //console.log(page);
     // Create a card for the page
     var card = $("<div class='result-card'></div>");
@@ -234,8 +234,10 @@ function updateMergedUI(mergedList) {
             if (mergedList[j][3] == null) {
                 card.addClass('glowBGnoBlack');
             } else {
-                card.css("background-color", mergedList[j][3]);
-                card.css("color", "#fff");
+                // card.css("background-color", mergedList[j][3]);
+                // card.css("color", "#fff");
+                card.css("box-shadow", "0 0 20px " + mergedList[j][3]);
+                card.css("border", "3px solid " + mergedList[j][3]);
             }
             tabContent.append(card);
         }

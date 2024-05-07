@@ -154,7 +154,7 @@ function toggleValues() {
         toggleHeader.innerHTML = "Highest TFIDF";   
     } else {
         usefreq = true;
-        toggleHeader.innerHTML = "Highest Frequency";    
+        toggleHeader.innerHTML = "Highest Frequency*TFIDF";    
     }
 
     const catElement = $("#toggleHeaderParent");

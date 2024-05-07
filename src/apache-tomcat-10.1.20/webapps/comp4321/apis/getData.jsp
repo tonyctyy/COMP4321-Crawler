@@ -130,17 +130,17 @@
     long PageParentID = recman.getNamedObject("PageParent");
     HTree PageParent = HTree.load(recman, PageParentID);
     
-System.out.print("???????????????????????????");
-FastIterator elements = PageChild.keys();
+// System.out.print("???????????????????????????");
+// FastIterator elements = PageChild.keys();
 
-Object val;
-int countccc = 0;
-while ((val = elements.next()) != null) {
-    System.out.println(val);
-    countccc++;
-}
+// Object val;
+// int countccc = 0;
+// while ((val = elements.next()) != null) {
+//     System.out.println(val);
+//     countccc++;
+// }
 
-System.out.println("Length of keys list: " + countccc);
+// System.out.println("Length of keys list: " + countccc);
 
     // get the list of word id from the n-grams and store them as Map<Integer, Double> for the query where the key is the word id and the value is 1.0
     Map<Integer, Double> query = new HashMap<>();
