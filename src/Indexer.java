@@ -115,15 +115,37 @@ public class Indexer {
     public void convertPageParent(HTree URLTable, HTree PageParentTable) throws IOException {
         List<String> keysToRemove = new ArrayList<>();
 
+        Set<String> keys = new HashSet<>();
         FastIterator iter = PageParentTable.keys();
         String key;
         while ((key = (String) iter.next()) != null) {
-            String value = (String) PageParentTable.get(key);
-            String parentValue = (String) URLTable.get(key);
-            if (parentValue != null && !parentValue.isEmpty()) {
-                PageParentTable.put(parentValue, value);
+            keys.add(key);
+            // String value = (String) PageParentTable.get(key);
+            // String parentValue = (String) URLTable.get(key);
+            // if (parentValue != null && !parentValue.isEmpty()) {
+            //     PageParentTable.put(parentValue, value);
+            // }
+            // keysToRemove.add(key);
+        }
+
+        for (String currentKey : keys) {
+            String value = (String) PageParentTable.get(currentKey);
+            String[] values = value.split(",");
+            List<String> updatedValues = new ArrayList<>();
+            for (String parentKey : values) {
+                String parentValue = (String) URLTable.get(parentKey);
+                if (parentValue != null && !parentValue.isEmpty()) {
+                    updatedValues.add(parentValue);
+                }
             }
-            keysToRemove.add(key);
+            // Update the value in PageParentTable
+            if (!updatedValues.isEmpty()) {
+                value = String.join(",", updatedValues);
+                PageParentTable.put(currentKey, value);
+            } else {
+                // Add the key to keysToRemove list for removal
+                keysToRemove.add(currentKey);
+            }
         }
 
         for (String keyToRemove : keysToRemove) {

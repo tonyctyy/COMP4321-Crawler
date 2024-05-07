@@ -10,7 +10,7 @@ public class TestProgram {
     public static void main(String[] args) {
         long startTime = System.nanoTime();
         String startUrl = "https://www.cse.ust.hk/~kwtleung/COMP4321/testpage.htm";
-        int max_pages = 100;
+        int max_pages = 300;
         CrawlandIndex crawler = new CrawlandIndex(startUrl, max_pages);
         crawler.crawlAndIndexPages();
         // crawler.displayDB();
