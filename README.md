@@ -83,3 +83,10 @@ Then, open a web browser and navigate to the following URL to access the fronten
 ```shell
 http://localhost:8080/comp4321/
 ```
+
+#### Replicating the Result
+The result shown in the demo video is produced using a maximum crawling page of 100 instead of 300 in the final submission. You may change this value under TestProgram.java and follow the search sequence in order to replicate the result. 
+
+You may also need to remove all the .class files in src and database files in the data before compiling .java files.
+
+Note: The demo video mainly focuses on the functionality of each feature; The color labels for OR operation are random.
