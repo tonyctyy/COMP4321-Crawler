@@ -275,7 +275,6 @@ public class Indexer {
                 pageMag.put(Long.parseLong(tempArray2[0]), pageMag.get(Long.parseLong(tempArray2[0])) + Math.pow(TFIDF, 2));
             }
             InvertedWord.put(key, String.join(",", tempArray));
-            System.out.println(key + ": " + InvertedWord.get(key));
         }
         for (Map.Entry<Long, Double> entry : pageMag.entrySet()) {
             double mag = Math.sqrt(entry.getValue());
