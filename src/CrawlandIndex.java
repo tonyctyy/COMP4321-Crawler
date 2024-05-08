@@ -222,6 +222,7 @@ public class CrawlandIndex {
                 // System.out.println("Time used : " + seconds + " seconds");
                                    
             }
+            indexer.sortInvertedWord(InvertedBodyWord);
             indexer.addInvertedTFIDF(PageInfoIndexer, InvertedBodyWord);
             indexer.convertPageChild(PageURlMapping, PageChild);
             indexer.convertPageParent(PageURlMapping, PageParent);

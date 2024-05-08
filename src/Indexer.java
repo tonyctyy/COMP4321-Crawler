@@ -194,6 +194,19 @@ public class Indexer {
         }
     }
 
+    public void sortInvertedWord(HTree hashtable) throws IOException {
+        FastIterator iter = hashtable.keys();
+        String key;
+        while ((key = (String) iter.next()) != null) {
+            String value = (String) hashtable.get(key);
+            String[] values = value.split(",");
+            // Sort the values based on PageID which is the first element in the values (need to spilt by |)
+            Arrays.sort(values, (a, b) -> Long.compare(Long.parseLong(a.split("\\|")[0]), Long.parseLong(b.split("\\|")[0])));
+            hashtable.put(key, String.join(",", values));
+        }
+    }
+
+
     // Add InvertedBodyWord entry to index
     public void addInvertedWord(HTree hashtable, String WordID, String PageID, String Frequency, String TFIDF) throws IOException {
         String value = PageID + "|" + Frequency + "|" + TFIDF;
@@ -203,31 +216,31 @@ public class Indexer {
             String temp = (String) hashtable.get(WordID);
             hashtable.put(WordID, temp + ',' + value);
 
-            String[] tempArray = temp.split(",");
-            for (int i = 0; i < tempArray.length; i++) {
-                String[] tempArray2 = tempArray[i].split("\\|");
-                // update the value
-                if (tempArray2[0].equals(PageID)) {
-                    tempArray[i] = value;
-                    temp = String.join(",", tempArray);
-                    hashtable.put(WordID, temp);
-                    return;
-                }
-                // add to the middle of the list
-                else if (Long.parseLong(tempArray2[0]) > Long.parseLong(PageID)) {
-                    String[] tempArray3 = Arrays.copyOfRange(tempArray, 0, i+1);
-                    String[] tempArray4 = Arrays.copyOfRange(tempArray, i, tempArray.length);
-                    tempArray3[i] = value;
-                    tempArray = Arrays.copyOf(tempArray3, tempArray3.length + tempArray4.length);
-                    System.arraycopy(tempArray4, 0, tempArray, tempArray3.length, tempArray4.length);
-                    temp = String.join(",", tempArray);
-                    hashtable.put(WordID, temp);
-                    return;
-                }
-            }
-            // add to the end of the list
-            temp = temp + "," + value;
-            hashtable.put(WordID, temp);
+            // String[] tempArray = temp.split(",");
+            // for (int i = 0; i < tempArray.length; i++) {
+            //     String[] tempArray2 = tempArray[i].split("\\|");
+            //     // update the value
+            //     if (tempArray2[0].equals(PageID)) {
+            //         tempArray[i] = value;
+            //         temp = String.join(",", tempArray);
+            //         hashtable.put(WordID, temp);
+            //         return;
+            //     }
+            //     // add to the middle of the list
+            //     else if (Long.parseLong(tempArray2[0]) > Long.parseLong(PageID)) {
+            //         String[] tempArray3 = Arrays.copyOfRange(tempArray, 0, i+1);
+            //         String[] tempArray4 = Arrays.copyOfRange(tempArray, i, tempArray.length);
+            //         tempArray3[i] = value;
+            //         tempArray = Arrays.copyOf(tempArray3, tempArray3.length + tempArray4.length);
+            //         System.arraycopy(tempArray4, 0, tempArray, tempArray3.length, tempArray4.length);
+            //         temp = String.join(",", tempArray);
+            //         hashtable.put(WordID, temp);
+            //         return;
+            //     }
+            // }
+            // // add to the end of the list
+            // temp = temp + "," + value;
+            // hashtable.put(WordID, temp);
         }
     }
 
@@ -240,6 +253,7 @@ public class Indexer {
         String key2;
         Map<Long, Integer> max = new HashMap<Long, Integer>();
         Map<Long, Double> pageMag = new HashMap<Long, Double>();
+        // get the max frequency of each page
         while ((key2 = (String) iter2.next()) != null) {
             String value = (String) PageInfo.get(key2);
             String[] values = value.split("\\|");
@@ -248,17 +262,20 @@ public class Indexer {
         }
         double n = getSize(PageInfo);
         while ((key = (String) iter.next()) != null) {
-            String value = (String) InvertedWord.get(key);
-            Map<Long, String[]> values = getInvertedWord(InvertedWord, key);
-            for (Map.Entry<Long, String[]> entry : values.entrySet()) {
-                String[] temp = entry.getValue();
-                int maxFreq = max.get(entry.getKey());
-                double TF = Double.parseDouble(temp[0]) / maxFreq;
-                double IDF = Math.log(n / values.size());
+            String temp = (String) InvertedWord.get(key);
+            String[] tempArray = temp.split(",");
+            for (int i = 0; i < tempArray.length; i++) {
+                String[] tempArray2 = tempArray[i].split("\\|");
+                // update the value
+                int maxFreq = max.get(Long.parseLong(tempArray2[0]));
+                double TF = Double.parseDouble(tempArray2[1]) / maxFreq;
+                double IDF = Math.log(n / tempArray.length);
                 double TFIDF = Math.round(TF * IDF * 100000.0) / 100000.0;
-                addInvertedWord(InvertedWord, key, String.valueOf(entry.getKey()), temp[0], String.valueOf(TFIDF));
-                pageMag.put(entry.getKey(), pageMag.get(entry.getKey()) + Math.pow(TFIDF, 2));
+                tempArray[i] = tempArray2[0] + "|" + tempArray2[1] + "|" + String.valueOf(TFIDF);
+                pageMag.put(Long.parseLong(tempArray2[0]), pageMag.get(Long.parseLong(tempArray2[0])) + Math.pow(TFIDF, 2));
             }
+            InvertedWord.put(key, String.join(",", tempArray));
+            System.out.println(key + ": " + InvertedWord.get(key));
         }
         for (Map.Entry<Long, Double> entry : pageMag.entrySet()) {
             double mag = Math.sqrt(entry.getValue());

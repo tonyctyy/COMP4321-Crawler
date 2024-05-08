@@ -151,6 +151,8 @@
         }
     }
 
+
+
     // get the list of indexed pages from the word id. in the format of Map<Integer, Map<Integer, Double>> where the key is the page id and the value is another map where the key is the word id and the value is the tf-idf score
     Map<Integer, Map<Integer, Double>> indexedBody = new HashMap<>();
     Map<Integer, Double> indexedBodyScore = new HashMap<>();
@@ -175,6 +177,7 @@
         }
     }
 
+
     // get the list of indexed pages from the word id. in the format of Map<Integer, Map<Integer, Double>> where the key is the page id and the value is another map where the key is the word id and the value is the tf-idf score
     Map<Integer, Map<Integer, Double>> indexedTitle = new HashMap<>();
     for (Map.Entry<Integer, Double> entry : query.entrySet()) {
@@ -198,6 +201,7 @@
         }
     }
 
+    
     // calculate the cosine similarity between the query and the indexed pages (both body and title)
     Map<Integer, Double> cosineSimilarityBody = new HashMap<>();
     for (Map.Entry<Integer, Map<Integer, Double>> entryBody : indexedBody.entrySet()) {
@@ -209,18 +213,18 @@
         for (Map.Entry<Integer, Double> q : query.entrySet()) {
             int wordID = q.getKey();
             double queryScore = q.getValue();
-            double indexedPageScore = indexedPage.getOrDefault(wordID, 0.0);
+            double indexedPageScore = Math.abs(indexedPage.getOrDefault(wordID, 0.0));
+
             dotProduct += queryScore * indexedPageScore;
+
             queryMagnitude += queryScore * queryScore;
         }
         queryMagnitude = Math.sqrt(queryMagnitude);
         double similarity = dotProduct / (queryMagnitude * indexedPageMagnitude);
 
-        //double similarity = dotProduct;
-        //double similarity = indexedPageMagnitude;
-
         cosineSimilarityBody.put(pageID, similarity);
     }
+
 
     Map<Integer, Double> cosineSimilarityTitle = new HashMap<>();
     for (Map.Entry<Integer, Map<Integer, Double>> entryTitle : indexedTitle.entrySet()) {
@@ -243,14 +247,15 @@
 
     // combine the cosine similarity of the body and title by adding them together with a weighting of 0.7 for body and 0.3 for title
     Map<Integer, Double> cosineSimilarity = new HashMap<>();
-    double bodyPara = 0.7;
-    double titlePara = 0.3;
+    double bodyPara = 10.0;
+    double titlePara = 25.0;
     for (Map.Entry<Integer, Double> entry : cosineSimilarityBody.entrySet()) {
         int pageID = entry.getKey();
         double bodySimilarity = entry.getValue();
         double titleSimilarity = cosineSimilarityTitle.getOrDefault(pageID, 0.0);
         double similarity = bodyPara * bodySimilarity + titlePara * titleSimilarity;
-        cosineSimilarity.put(pageID, similarity);
+        if (similarity>0.0)
+            cosineSimilarity.put(pageID, similarity);
     }
 
     // sort the cosine similarity in descending order
